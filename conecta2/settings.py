@@ -85,13 +85,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'conecta2',
-        'USER': 'postgres',
-        'PASSWORD': '',
+        'USER': 'conecta2_admin',
+        'PASSWORD': 'admin',
         'HOST': '',
         'PORT': '',
     }
 }
-
 
 
 # Internationalization
