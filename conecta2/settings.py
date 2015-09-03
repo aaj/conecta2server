@@ -154,6 +154,9 @@ SOCIAL_AUTH_PIPELINE = (
     'usuarios.pipeline.user_details',
 )
 
+MEDIA_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../media/').replace('\\','/'))
+STATIC_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../static/').replace('\\','/'))
+
 try:
     from local_settings import *
 except ImportError:
