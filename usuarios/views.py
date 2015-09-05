@@ -8,6 +8,7 @@ from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_http_methods
 from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_exempt
 
 from conecta2.http import *
 
@@ -15,6 +16,7 @@ from social.apps.django_app.utils import psa
 
 @psa('social:complete')
 @require_http_methods(['POST'])
+@csrf_exempt
 def social_auth(request, backend, *args, **kwargs):
     logout(request)
     if backend == 'facebook':
@@ -36,6 +38,7 @@ def social_auth(request, backend, *args, **kwargs):
 
 
 @require_http_methods(['POST'])
+@csrf_exempt
 def auth(request, *args, **kwargs):
     logout(request)
     username = request.POST.get('username', '')
