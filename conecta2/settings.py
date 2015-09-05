@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'usuarios',
     'social.apps.django_app.default',
     'geoposition',
+    'easy_thumbnails',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -156,6 +157,15 @@ SOCIAL_AUTH_PIPELINE = (
 
 MEDIA_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../media/').replace('\\','/'))
 STATIC_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../static/').replace('\\','/'))
+
+THUMBNAIL_PRESERVE_EXTENSIONS = True
+THUMBNAIL_ALIASES = {
+    '': {
+        'small': {'size': (32, 32), 'crop': 'smart'},
+        'medium': {'size': (128, 128), 'crop': 'smart'},
+        'large': {'size': (512, 512), 'crop': 'smart'}
+    },
+}
 
 try:
     from local_settings import *

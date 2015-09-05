@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
+from easy_thumbnails.fields import ThumbnailerImageField
 # Create your models here.
 
 class Voto(models.Model):

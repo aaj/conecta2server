@@ -22,12 +22,13 @@ def social_auth(request, backend, *args, **kwargs):
 
         try:
             user = request.backend.do_auth(token)
-        except:
+        except Exception as ex:
+            print(ex)
             return JsonResponseBadRequest({'message': 'Invalid or missing access token.'})
         else:
             if user:
                 login(request, user)
-                return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request)})
+                return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
             else:
                 return JsonResponseBadRequest({'message': 'FB Login Error.'})
     else:
@@ -58,6 +59,6 @@ def auth(request, *args, **kwargs):
 
     if user and user.is_active:
         login(request, user)        
-        return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request)})
+        return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
     else:
         return JsonResponseBadRequest({'message': 'Wrong username or password.'})

@@ -6,8 +6,10 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from geoposition.fields import GeopositionField
 from django.contrib.contenttypes.fields import GenericRelation
+
+from geoposition.fields import GeopositionField
+from easy_thumbnails.fields import ThumbnailerImageField
 
 # Create your models here.
 
@@ -17,13 +19,13 @@ class Evento(models.Model):
     lugar = GeopositionField()
     direccion = models.CharField(max_length=100)
     institucion = models.ForeignKey('instituciones.Institucion', related_name='eventos')
-    imagen = models.ImageField(upload_to='imagenes/eventos')
+    imagen = ThumbnailerImageField(upload_to='imagenes/eventos')
     inicio = models.DateTimeField()
     fin = models.DateTimeField()
     participantes = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Participacion', related_name='participaciones')
     
     codigo_qr = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
-    imagen_qr = models.ImageField(upload_to='imagenes/eventos/qr')
+    imagen_qr = ThumbnailerImageField(upload_to='imagenes/eventos/qr', editable=False, blank=True)
 
     votos = GenericRelation('votos.Voto')
     vistas = models.PositiveIntegerField(default=0)
@@ -70,7 +72,7 @@ class Evento(models.Model):
 class Logro(models.Model):
     nombre = models.CharField(max_length=50)
     evento = models.OneToOneField('Evento')
-    imagen = models.ImageField(upload_to='imagenes/logros')
+    imagen = ThumbnailerImageField(upload_to='imagenes/logros')
     usuarios = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='logros', blank=True)
 
     def descripcion(self):
@@ -115,7 +117,7 @@ class Participacion(models.Model):
 
 class Recuerdo(models.Model):
     evento = models.ForeignKey('Evento')
-    imagen = models.ImageField(upload_to='imagenes/eventos/recuerdos')
+    imagen = ThumbnailerImageField(upload_to='imagenes/eventos/recuerdos')
 
     def __unicode__(self):
         return '%s (%s)' % (self.evento.nombre, self.imagen.name)

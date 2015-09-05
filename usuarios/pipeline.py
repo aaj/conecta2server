@@ -1,5 +1,8 @@
-from usuarios.models import Perfil
+from requests import request, HTTPError
 
+from django.core.files.base import ContentFile
+
+from usuarios.models import Perfil
 
 def user_details(strategy, details, response, user=None, *args, **kwargs):
     """Update user details using data from provider."""
@@ -24,6 +27,8 @@ def user_details(strategy, details, response, user=None, *args, **kwargs):
         if changed:
             strategy.storage.user.changed(user)
 
+        # extra data #
+
         if not hasattr(user, 'perfil') or not user.perfil:
             perfil = Perfil(usuario=user)
         else:
@@ -36,5 +41,15 @@ def user_details(strategy, details, response, user=None, *args, **kwargs):
 
             if sexo in ['m', 'f']:
                 perfil.sexo = sexo
+
+        url = 'http://graph.facebook.com/{0}/picture'.format(response['id'])
+
+        try:
+            r = request('GET', url, params={'type': 'large'})
+            r.raise_for_status()
+        except HTTPError:
+            pass
+        else:
+            perfil.imagen.save('{0}_social.jpg'.format(user.username), ContentFile(r.content))
 
         perfil.save()

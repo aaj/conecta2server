@@ -2,7 +2,9 @@ from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 
-# Create your models here.
+from conecta2.utils import dataURI
+from easy_thumbnails.fields import ThumbnailerImageField
+from votos.models import Voto
 
 class Perfil(models.Model):
     SEXO_CHOICES = (('f', 'Femenino'), ('m', 'Masculino'))
@@ -12,9 +14,7 @@ class Perfil(models.Model):
     fecha_nacimiento = models.DateField(blank=True, null=True)
     telefono = models.CharField(max_length=20, blank=True)
     bio = models.CharField(max_length=1000, blank=True)
-
-    correo_publico = models.BooleanField(default=True)
-    telefono_publico = models.BooleanField(default=True)
+    imagen = ThumbnailerImageField(upload_to='imagenes/perfiles', blank=True)
 
     votos = GenericRelation('votos.Voto')
 
@@ -27,6 +27,7 @@ class Perfil(models.Model):
             int(bool(self.fecha_nacimiento)),
             int(bool(self.telefono)),
             int(bool(self.bio)),
+            int(bool(self.imagen)),
             int(bool(self.habilidades.all()))
         ]
 
@@ -62,8 +63,64 @@ class Perfil(models.Model):
 
         return self._horas_para_nivelar
 
+    def as_dict(self):
+        res = {
+            'id': self.usuario.id, 
+            'username': self.usuario.username, 
+            'email': self.usuario.email, 
+            'first_name': self.usuario.first_name, 
+            'last_name': self.usuario.last_name, 
+            'short_name': self.usuario.get_short_name(), 
+            'full_name': self.usuario.get_full_name(), 
+            'sexo': self.sexo,
+            'fecha_nacimiento': self.fecha_nacimiento,
+            'telefono': self.telefono,
+            'bio': self.bio,
+            'privacidad': self.usuario.privacidad.as_dict(),
+            'votos': {
+                'recibidos': self.votos.count(),
+                'dados': Voto.objects.filter(usuario=self.usuario, content_type__model='perfil').count()
+            }
+        }
+
+        if self.imagen:
+            res['pictures'] = {'medium': dataURI(self.imagen['medium']), 'full': dataURI(self.imagen)}
+        else:
+            res['pictures'] = {'medium': None, 'full': None}
+
+        return res
+
+    def save(self, *args, **kwargs):
+        super(Perfil, self).save(*args, **kwargs)
+        
+        if self.usuario and not hasattr(self.usuario, 'privacidad') or not self.usuario.privacidad:
+            privacidad = Privacidad(usuario=self.usuario)
+            privacidad.save()
+
+
     def __unicode__(self):
         return '%s (%d%% complete)' % (self.usuario.get_full_name() or self.usuario, self.porcentaje())
+
+
+class Privacidad(models.Model):
+    usuario = models.OneToOneField(settings.AUTH_USER_MODEL)
+    email_publico = models.BooleanField(default=True)
+    sexo_publico = models.BooleanField(default=True)
+    fecha_nacimiento_publico = models.BooleanField(default=True)
+    telefono_publico = models.BooleanField(default=True)
+    bio_publico = models.BooleanField(default=True)
+
+    def as_dict(self):
+        return {
+            'email_publico': self.email_publico,
+            'sexo_publico': self.sexo_publico,
+            'fecha_nacimiento_publico': self.fecha_nacimiento_publico,
+            'telefono_publico': self.telefono_publico,
+            'bio_publico': self.bio_publico
+        }
+
+    def __unicode__(self):
+        return '%s - Privacy Settings' % (self.usuario)
 
 
 class Habilidad(models.Model):

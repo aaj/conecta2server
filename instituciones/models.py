@@ -2,12 +2,13 @@ from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 
+from easy_thumbnails.fields import ThumbnailerImageField
 # Create your models here.
 
 class Institucion(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=500)
-    logo = models.ImageField(upload_to='imagenes/logos')
+    logo = ThumbnailerImageField(upload_to='imagenes/logos')
     telefono_contacto = models.CharField(max_length=12, blank=True)
     direccion_contacto = models.CharField(max_length=100, blank=True)
     correo_contacto = models.EmailField(blank=True)
