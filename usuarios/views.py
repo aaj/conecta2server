@@ -1,6 +1,6 @@
 import json
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -14,11 +14,11 @@ from conecta2.http import *
 from social.apps.django_app.utils import psa
 
 @psa('social:complete')
-@require_http_methods(['GET'])
+@require_http_methods(['POST'])
 def social_auth(request, backend, *args, **kwargs):
     logout(request)
     if backend == 'facebook':
-        token = request.GET.get('access_token')
+        token = request.POST.get('access_token')
 
         try:
             user = request.backend.do_auth(token)
@@ -35,11 +35,11 @@ def social_auth(request, backend, *args, **kwargs):
         return JsonResponseServerError('"%s" auth not supported.' % backend)
 
 
-@require_http_methods(['GET'])
+@require_http_methods(['POST'])
 def auth(request, *args, **kwargs):
     logout(request)
-    username = request.GET.get('username', '')
-    password = request.GET.get('password', '')
+    username = request.POST.get('username', '')
+    password = request.POST.get('password', '')
 
     try:
         email_validator = EmailValidator()
@@ -62,3 +62,10 @@ def auth(request, *args, **kwargs):
         return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
     else:
         return JsonResponseBadRequest({'message': 'Wrong username or password.'})
+
+
+# @require_http_methods(['GET', 'POST'])
+# def register(request, *args, **kwargs):
+#     if request.method == 'GET':
+#         return HttpResponse('Aqui va la pagina de register!')
+#     else: #request = POST
