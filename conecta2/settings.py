@@ -97,7 +97,7 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-hn'
 
 TIME_ZONE = 'UTC'
 
@@ -166,6 +166,8 @@ THUMBNAIL_ALIASES = {
         'large': {'size': (512, 512), 'crop': 'smart'}
     },
 }
+
+LOGIN_URL = '/usuarios/login/'
 
 try:
     from local_settings import *

@@ -16,6 +16,8 @@ class Perfil(models.Model):
     bio = models.CharField(max_length=1000, blank=True)
     imagen = ThumbnailerImageField(upload_to='imagenes/perfiles', blank=True)
 
+    email_verificado = models.BooleanField(default=False)
+    
     votos = GenericRelation('votos.Voto')
 
     def porcentaje(self):

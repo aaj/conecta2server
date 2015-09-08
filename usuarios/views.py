@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import json
 
 from django.http import JsonResponse, HttpResponse
@@ -11,8 +13,15 @@ from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 
 from conecta2.http import *
+from .decorators import login_required_401
+from .forms import *
 
 from social.apps.django_app.utils import psa
+
+@require_http_methods(['GET'])
+def user_login(request, *args, **kwargs):
+    return render(request, 'usuarios/login.html')
+
 
 @psa('social:complete')
 @require_http_methods(['POST'])
@@ -29,10 +38,16 @@ def social_auth(request, backend, *args, **kwargs):
             return JsonResponseBadRequest({'message': 'Invalid or missing access token.'})
         else:
             if user:
-                login(request, user)
-                return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
+                if user.is_active():
+                    if user.perfil.email_verificado:
+                        login(request, user)
+                        return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
+                    else:
+                        return JsonResponseUnauthorized({'message': 'Tienes que verificar tu correo electronico antes de ingresar.'})
+                else:
+                    return JsonResponseUnauthorized({'message': 'Su cuenta ha sido desactivada.'})
             else:
-                return JsonResponseBadRequest({'message': 'FB Login Error.'})
+                return JsonResponseBadRequest({'message': 'Error de autenticacion. Intente de nuevo.'})
     else:
         return JsonResponseServerError('"%s" auth not supported.' % backend)
 
@@ -60,12 +75,39 @@ def auth(request, *args, **kwargs):
 
     user = authenticate(username=username, password=password)
 
-    if user and user.is_active:
-        login(request, user)        
-        return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
+    if user:
+        if user.is_active:
+            if user.perfil.email_verificado:
+                login(request, user)        
+                return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
+            else:
+                return JsonResponseUnauthorized({'message': 'Tienes que verificar tu correo electronico antes de ingresar.'})
+        else:
+            return JsonResponseUnauthorized({'message': 'Su cuenta ha sido desactivada.'})
     else:
-        return JsonResponseBadRequest({'message': 'Wrong username or password.'})
+        return JsonResponseBadRequest({'message': u'Usuario o contraseña invalida.'})
 
+
+@login_required_401
+@require_http_methods(['GET', 'POST'])
+def perfil(request, *args, **kwargs):
+    if request.method == 'GET':
+        return render(request, 'usuarios/perfil.html')
+    else:
+        perfil_form = PerfilForm(request.POST, instance=request.user.perfil)
+        user_form = UserForm(request.POST, instance=request.user)
+
+        if perfil_form.is_valid() & user_form.is_valid():
+            perfil_form.save()
+            user_form.save()
+            return MyJsonResponse()
+        else:
+            errores = dict()
+            errores.update(perfil_form.errors)
+            errores.update(user_form.errors)
+            
+            print(errores)
+            return JsonResponseBadRequest(data=errores)
 
 # @require_http_methods(['GET', 'POST'])
 # def register(request, *args, **kwargs):

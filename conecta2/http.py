@@ -1,40 +1,45 @@
 from django.http import JsonResponse
 
-class JsonResponsePermanentRedirect(JsonResponse):
+class MyJsonResponse(JsonResponse):
+    def __init__(self, data={}, **kwargs):
+        super(MyJsonResponse, self).__init__(data=data, **kwargs)
+
+
+class JsonResponsePermanentRedirect(MyJsonResponse):
     status_code = 301
 
 
-class JsonResponseRedirect(JsonResponse):
+class JsonResponseRedirect(MyJsonResponse):
     status_code = 302
 
 
-class JsonResponseNotModified(JsonResponse):
+class JsonResponseNotModified(MyJsonResponse):
     status_code = 304
 
 
-class JsonResponseBadRequest(JsonResponse):
+class JsonResponseBadRequest(MyJsonResponse):
     status_code = 400
 
 
-class JsonResponseUnauthorized(JsonResponse):
+class JsonResponseUnauthorized(MyJsonResponse):
     status_code = 401
 
 
-class JsonResponseForbidden(JsonResponse):
+class JsonResponseForbidden(MyJsonResponse):
     status_code = 403
 
 
-class JsonResponseNotFound(JsonResponse):
+class JsonResponseNotFound(MyJsonResponse):
     status_code = 404
 
 
-class JsonResponseNotAllowed(JsonResponse):
+class JsonResponseNotAllowed(MyJsonResponse):
     status_code = 405
 
 
-class JsonResponseGone(JsonResponse):
+class JsonResponseGone(MyJsonResponse):
     status_code = 410
 
 
-class JsonResponseServerError(JsonResponse):
+class JsonResponseServerError(MyJsonResponse):
     status_code = 500
