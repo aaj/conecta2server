@@ -38,7 +38,7 @@ def social_auth(request, backend, *args, **kwargs):
             return JsonResponseBadRequest({'message': 'Invalid or missing access token.'})
         else:
             if user:
-                if user.is_active():
+                if user.is_active:
                     if user.perfil.email_verificado:
                         login(request, user)
                         return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
@@ -100,7 +100,7 @@ def perfil(request, *args, **kwargs):
         if perfil_form.is_valid() & user_form.is_valid():
             perfil_form.save()
             user_form.save()
-            return MyJsonResponse()
+            return return MyJsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
         else:
             errores = dict()
             errores.update(perfil_form.errors)
