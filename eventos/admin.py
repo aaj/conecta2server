@@ -12,6 +12,10 @@ class LogroAdmin(admin.ModelAdmin):
                 form.instance.usuarios.add(usuario)
 
 
-admin.site.register(Evento)
+class EventoAdmin(admin.ModelAdmin):
+    model = Evento
+    list_display = ('nombre', 'inicio', 'fin')
+
+admin.site.register(Evento, EventoAdmin)
 admin.site.register(Logro, LogroAdmin)
 admin.site.register(Participacion)

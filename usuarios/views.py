@@ -39,11 +39,8 @@ def social_auth(request, backend, *args, **kwargs):
         else:
             if user:
                 if user.is_active:
-                    if user.perfil.email_verificado:
-                        login(request, user)
-                        return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
-                    else:
-                        return JsonResponseUnauthorized({'message': 'Tienes que verificar tu correo electronico antes de ingresar.'})
+                    login(request, user)
+                    return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
                 else:
                     return JsonResponseUnauthorized({'message': 'Su cuenta ha sido desactivada.'})
             else:

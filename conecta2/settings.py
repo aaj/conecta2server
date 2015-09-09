@@ -15,7 +15,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -45,6 +44,7 @@ INSTALLED_APPS = (
     'social.apps.django_app.default',
     'geoposition',
     'easy_thumbnails',
+    'easy_timezones',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -56,6 +56,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'easy_timezones.middleware.EasyTimezoneMiddleware',
 )
 
 ROOT_URLCONF = 'conecta2.urls'
@@ -168,6 +169,8 @@ THUMBNAIL_ALIASES = {
 }
 
 LOGIN_URL = '/usuarios/login/'
+
+GEOIP_DATABASE = os.path.join(BASE_DIR, 'GeoLiteCity.dat')
 
 try:
     from local_settings import *
