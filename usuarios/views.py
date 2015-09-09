@@ -109,7 +109,11 @@ def perfil(request, *args, **kwargs):
         if perfil_form.is_valid() & user_form.is_valid():
             perfil_form.save()
             user_form.save()
-            return MyJsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
+            return JsonResponse({
+                'user': request.user.pk, 
+                'token': token_generator.make_token(request.user), 
+                'perfil': request.user.perfil.as_dict()
+            })   
         else:
             errores = dict()
             errores.update(perfil_form.errors)
