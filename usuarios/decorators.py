@@ -21,9 +21,11 @@ def login_required_401(f):
                 login(request, authed_user)
                 return f(request, *args, **kwargs)
             else:
-                if request.is_ajax():
-                    return JsonResponseUnauthorized()
-                else:
+                platform = request.POST.get('platform', request.GET.get('platform', 'web'))
+                
+                if platform == 'web':
                     return redirect(settings.LOGIN_URL)
+                else:
+                    return JsonResponseUnauthorized()
 
     return wrapper
