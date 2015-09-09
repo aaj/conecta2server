@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'geoposition',
     'easy_thumbnails',
     'easy_timezones',
+    'tokenapi',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -118,6 +119,7 @@ STATIC_URL = '/static/'
 AUTHENTICATION_BACKENDS = (
     'social.backends.facebook.FacebookOAuth2',
     'django.contrib.auth.backends.ModelBackend',
+    'tokenapi.backends.TokenBackend',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -168,9 +170,11 @@ THUMBNAIL_ALIASES = {
     },
 }
 
-LOGIN_URL = '/usuarios/login/'
+LOGIN_URL = '/usuarios/login'
 
 GEOIP_DATABASE = os.path.join(BASE_DIR, 'GeoLiteCity.dat')
+
+TOKEN_CHECK_ACTIVE_USER = True
 
 try:
     from local_settings import *

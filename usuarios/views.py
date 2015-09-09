@@ -17,6 +17,7 @@ from .decorators import login_required_401
 from .forms import *
 
 from social.apps.django_app.utils import psa
+from tokenapi.tokens import token_generator
 
 @require_http_methods(['GET'])
 def user_login(request, *args, **kwargs):
@@ -40,7 +41,12 @@ def social_auth(request, backend, *args, **kwargs):
             if user:
                 if user.is_active:
                     login(request, user)
-                    return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
+
+                    return JsonResponse({
+                        'user': user.pk, 
+                        'token': token_generator.make_token(user), 
+                        'perfil': user.perfil.as_dict()
+                    })
                 else:
                     return JsonResponseUnauthorized({'message': 'Su cuenta ha sido desactivada.'})
             else:
@@ -75,8 +81,13 @@ def auth(request, *args, **kwargs):
     if user:
         if user.is_active:
             if user.perfil.email_verificado:
-                login(request, user)        
-                return JsonResponse({'sessionid': request.session.session_key, 'csrftoken': get_token(request), 'usuario': user.perfil.as_dict()})
+                login(request, user)
+
+                return JsonResponse({
+                    'user': user.pk, 
+                    'token': token_generator.make_token(user), 
+                    'perfil': user.perfil.as_dict()
+                })   
             else:
                 return JsonResponseUnauthorized({'message': 'Tienes que verificar tu correo electronico antes de ingresar.'})
         else:
@@ -87,6 +98,7 @@ def auth(request, *args, **kwargs):
 
 @login_required_401
 @require_http_methods(['GET', 'POST'])
+@csrf_exempt
 def perfil(request, *args, **kwargs):
     if request.method == 'GET':
         return render(request, 'usuarios/perfil.html')

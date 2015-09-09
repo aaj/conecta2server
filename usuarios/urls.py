@@ -10,3 +10,5 @@ urlpatterns = [
     url(r'^perfil$', views.perfil, name='perfil'),
     # url(r'^register/$', views.register, name='register'),
 ]
+
+# open -a Google\ Chrome --args --disable-web-security
