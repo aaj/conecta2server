@@ -9,6 +9,8 @@ urlpatterns = [
     
     url(r'^perfil$', views.perfil, name='perfil'),
     # url(r'^register/$', views.register, name='register'),
+
+    url(r'^privacidad/(?P<campo>[^/]+)$', views.privacidad, name='privacidad'),
 ]
 
 # open -a Google\ Chrome --args --disable-web-security

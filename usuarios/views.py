@@ -42,7 +42,7 @@ def social_auth(request, backend, *args, **kwargs):
                 if user.is_active:
                     login(request, user)
 
-                    return JsonResponse({
+                    return MyJsonResponse({
                         'user': user.pk, 
                         'token': token_generator.make_token(user), 
                         'perfil': user.perfil.as_dict()
@@ -83,7 +83,7 @@ def auth(request, *args, **kwargs):
             if user.perfil.email_verificado:
                 login(request, user)
 
-                return JsonResponse({
+                return MyJsonResponse({
                     'user': user.pk, 
                     'token': token_generator.make_token(user), 
                     'perfil': user.perfil.as_dict()
@@ -121,6 +121,26 @@ def perfil(request, *args, **kwargs):
             
             print(errores)
             return JsonResponseBadRequest(data=errores)
+
+
+# email_publico
+# sexo_publico
+# fecha_nacimiento_publico
+# telefono_publico
+# bio_publico
+
+@login_required_401
+@require_http_methods(['POST'])
+@csrf_exempt
+def privacidad(request, campo, *args, **kwargs):
+    if campo in ['email', 'sexo', 'fecha_nacimiento', 'telefono', 'bio']:
+        field_name = '%s_publico' % campo
+        setattr(request.user.privacidad, field_name, not getattr(request.user.privacidad, field_name))
+        request.user.privacidad.save()
+        return MyJsonResponse()
+    else:
+        return JsonResponseBadRequest(data={'message': '"%s" no es una opcion de privacidad.' % campo})
+
 
 # @require_http_methods(['GET', 'POST'])
 # def register(request, *args, **kwargs):
