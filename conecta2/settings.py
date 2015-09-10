@@ -58,6 +58,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'easy_timezones.middleware.EasyTimezoneMiddleware',
+    'conecta2.middleware.PlatformIdentificationMiddleware',
 )
 
 ROOT_URLCONF = 'conecta2.urls'

@@ -1,4 +1,6 @@
+import json
 from django.http import JsonResponse
+from django.http.request import QueryDict
 
 class MyJsonResponse(JsonResponse):
     def __init__(self, data={}, **kwargs):
@@ -43,3 +45,22 @@ class JsonResponseGone(MyJsonResponse):
 
 class JsonResponseServerError(MyJsonResponse):
     status_code = 500
+
+
+def querydict_from_json(json_string):
+    try:
+        obj = json.loads(json_string)
+    except ValueError:
+        # print("Error parsing JSON to QueryDict: Invalid JSON.")
+        return QueryDict()
+    else:
+        if type(obj) != dict:
+            # print("Error parsing JSON to QueryDict: JSON must be a single object.")
+            return QueryDict()
+        else:
+            qd = QueryDict(mutable=True)
+
+            for key,value in obj.iteritems():
+                qd[key] = value
+
+            return qd

@@ -65,7 +65,10 @@ class Perfil(models.Model):
 
         return self._horas_para_nivelar
 
-    def as_dict(self):
+    def lista_habilidades(self):
+        return [h.as_dict for h in self.habilidades.all()]
+
+    def as_dict(self, apply_privacy_settings=False):
         res = {
             'id': self.usuario.id, 
             'username': self.usuario.username, 
@@ -90,6 +93,22 @@ class Perfil(models.Model):
         else:
             res['pictures'] = {'medium': None, 'full': None}
 
+        if apply_privacy_settings:
+            if not self.usuario.privacidad.email_publico:
+                res['email'] = ''
+
+            if not self.usuario.privacidad.sexo_publico:
+                res['sexo'] = ''
+
+            if not self.usuario.privacidad.fecha_nacimiento_publico:
+                res['fecha_nacimiento'] = ''
+
+            if not self.usuario.privacidad.telefono_publico:
+                res['telefono'] = ''
+
+            if not self.usuario.privacidad.bio_publico:
+                res['bio'] = ''
+        
         return res
 
     def save(self, *args, **kwargs):
@@ -111,6 +130,7 @@ class Privacidad(models.Model):
     fecha_nacimiento_publico = models.BooleanField(default=True)
     telefono_publico = models.BooleanField(default=True)
     bio_publico = models.BooleanField(default=True)
+    recibir_notificaciones = models.BooleanField(default=True)
 
     def as_dict(self):
         return {
@@ -118,7 +138,8 @@ class Privacidad(models.Model):
             'sexo_publico': self.sexo_publico,
             'fecha_nacimiento_publico': self.fecha_nacimiento_publico,
             'telefono_publico': self.telefono_publico,
-            'bio_publico': self.bio_publico
+            'bio_publico': self.bio_publico,
+            'recibir_notificaciones': self.recibir_notificaciones
         }
 
     def __unicode__(self):
@@ -129,8 +150,15 @@ class Habilidad(models.Model):
     perfil = models.ForeignKey('Perfil', related_name='habilidades')
     descripcion = models.CharField(max_length=500)
 
+    def as_dict(self):
+        return {'id': self.id, 'descripcion': self.descripcion}
+
+    def __unicode__(self):
+        return '%s: %s' % (self.perfil.usuario, self.descripcion)
+
     class Meta:
         order_with_respect_to = 'perfil'
+
 
 
 class Nivel(models.Model):

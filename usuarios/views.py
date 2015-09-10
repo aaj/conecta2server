@@ -2,7 +2,7 @@
 
 import json
 
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -13,6 +13,7 @@ from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 
 from conecta2.http import *
+from .models import *
 from .decorators import login_required_401
 from .forms import *
 
@@ -99,51 +100,98 @@ def auth(request, *args, **kwargs):
 @login_required_401
 @require_http_methods(['GET', 'POST'])
 @csrf_exempt
-def perfil(request, *args, **kwargs):
-    if request.method == 'GET':
-        return render(request, 'usuarios/perfil.html')
-    else:
-        perfil_form = PerfilForm(request.POST, instance=request.user.perfil)
-        user_form = UserForm(request.POST, instance=request.user)
+def perfil(request, username, *args, **kwargs):
+    print(request.platform)
+    usuario = User.objects.filter(username__iexact=username).first()
 
-        if perfil_form.is_valid() & user_form.is_valid():
-            perfil_form.save()
-            user_form.save()
-            return JsonResponse({
-                'user': request.user.pk, 
-                'token': token_generator.make_token(request.user), 
-                'perfil': request.user.perfil.as_dict()
-            })   
+    if usuario is None:
+        msg = 'Usuario %s no existe!' % username
+        if request.platform == 'web':
+            raise Http404(msg)
         else:
-            errores = dict()
-            errores.update(perfil_form.errors)
-            errores.update(user_form.errors)
-            
-            print(errores)
-            return JsonResponseBadRequest(data=errores)
+            return JsonResponseNotFound({'message': msg})
 
+    perfil_depurado = usuario.perfil.as_dict(apply_privacy_settings=(usuario != request.user))
 
-# email_publico
-# sexo_publico
-# fecha_nacimiento_publico
-# telefono_publico
-# bio_publico
+    if request.method == 'GET':
+        if request.platform == 'web':
+            return render(request, 'usuarios/perfil.html', {'perfil': perfil_depurado})
+        else:
+            return MyJsonResponse({'perfil': perfil_depurado})
+    else:
+        if usuario == request.user:
+            perfil_form = PerfilForm(request.POST, instance=request.user.perfil)
+            user_form = UserForm(request.POST, instance=request.user)
+
+            if perfil_form.is_valid() & user_form.is_valid():
+                perfil_form.save()
+                user_form.save()
+                return JsonResponse({
+                    'user': request.user.pk, 
+                    'token': token_generator.make_token(request.user), 
+                    'perfil': request.user.perfil.as_dict()
+                })   
+            else:
+                errores = dict()
+                errores.update(perfil_form.errors)
+                errores.update(user_form.errors)
+
+                return JsonResponseBadRequest(errores)
+        else:
+            return JsonResponseForbidden({'message': 'Usted no tiene permiso de editar este perfil.'})
+
 
 @login_required_401
 @require_http_methods(['POST'])
 @csrf_exempt
 def privacidad(request, campo, *args, **kwargs):
-    if campo in ['email', 'sexo', 'fecha_nacimiento', 'telefono', 'bio']:
-        field_name = '%s_publico' % campo
-        setattr(request.user.privacidad, field_name, not getattr(request.user.privacidad, field_name))
+    if campo in ['email_publico', 'sexo_publico', 'fecha_nacimiento_publico', 'telefono_publico', 'bio_publico', 'recibir_notificaciones']:
+        setattr(request.user.privacidad, campo, not getattr(request.user.privacidad, campo))
         request.user.privacidad.save()
         return MyJsonResponse()
     else:
-        return JsonResponseBadRequest(data={'message': '"%s" no es una opcion de privacidad.' % campo})
+        return JsonResponseBadRequest({'message': '"%s" no es una opcion de privacidad.' % campo})
 
 
-# @require_http_methods(['GET', 'POST'])
-# def register(request, *args, **kwargs):
-#     if request.method == 'GET':
-#         return HttpResponse('Aqui va la pagina de register!')
-#     else: #request = POST
+@login_required_401
+@require_http_methods(['GET', 'POST', 'PUT', 'DELETE'])
+@csrf_exempt
+def habilidades(request, *args, **kwargs):
+    if request.method == 'GET':
+        return MyJsonResponse(request.user.perfil.lista_habilidades(), safe=False)
+    elif request.method == 'POST':
+        f = HabilidadForm(request.POST)
+
+        if f.is_valid():
+            nueva_habilidad = f.save(commit=False)
+            nueva_habilidad.perfil = request.user.perfil
+            nueva_habilidad.save()
+            return MyJsonResponse()
+        else:
+            return JsonResponseBadRequest(f.errors)
+    elif request.method == 'PUT':
+        habilidad = Habilidad.objects.filter(id=request.PUT.get('id', '0')).first()
+
+        if habilidad:
+            if habilidad.perfil == request.user.perfil:
+                f = HabilidadForm(PUT, instance=habilidad)
+                if f.is_valid():
+                    f.save()
+                    return MyJsonResponse()
+                else:
+                    return JsonResponseBadRequest(f.errors)
+            else:
+                return JsonResponseForbidden({'message': 'Usted no tiene permiso de editar esta habilidad.'})
+        else:
+            return JsonResponseNotFound({'message': 'Habilidad no existe.'})
+    elif request.method == 'DELETE':
+        habilidad = Habilidad.objects.filter(id=request.DEL.get('id', '0')).first()
+
+        if habilidad:
+            if habilidad.perfil == request.user.perfil:
+                habilidad.delete()
+                return MyJsonResponse()
+            else:
+                return JsonResponseForbidden({'message': 'Usted no tiene permiso de eliminar esta habilidad.'})
+        else:
+            return JsonResponseNotFound({'message': 'Habilidad no existe.'})

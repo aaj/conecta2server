@@ -4,7 +4,7 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
 
-from conecta2.http import JsonResponseUnauthorized
+from conecta2.http import JsonResponseUnauthorized, querydict_from_json
 
 def login_required_401(f):
     @wraps(f)
@@ -12,8 +12,8 @@ def login_required_401(f):
         if request.user.is_authenticated():
             return f(request, *args, **kwargs)
         else:
-            user = request.POST.get('user', request.GET.get('user', ''))
-            token = request.POST.get('token', request.GET.get('token', ''))
+            user = request.ANY.get('user', '')
+            token = request.ANY.get('token', '')
 
             authed_user = authenticate(pk=user, token=token)
 
@@ -21,9 +21,7 @@ def login_required_401(f):
                 login(request, authed_user)
                 return f(request, *args, **kwargs)
             else:
-                platform = request.POST.get('platform', request.GET.get('platform', 'web'))
-                
-                if platform == 'web':
+                if request.platform == 'web':
                     return redirect(settings.LOGIN_URL)
                 else:
                     return JsonResponseUnauthorized()
