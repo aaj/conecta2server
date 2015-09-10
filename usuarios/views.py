@@ -100,8 +100,14 @@ def auth(request, *args, **kwargs):
 @login_required_401
 @require_http_methods(['GET', 'POST'])
 @csrf_exempt
+def mi_perfil(request, *args, **kwargs):
+    return perfil(request, username=request.user.username, *args, **kwargs)
+
+
+@login_required_401
+@require_http_methods(['GET', 'POST'])
+@csrf_exempt
 def perfil(request, username, *args, **kwargs):
-    print(request.platform)
     usuario = User.objects.filter(username__iexact=username).first()
 
     if usuario is None:
