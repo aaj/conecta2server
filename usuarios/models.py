@@ -66,7 +66,7 @@ class Perfil(models.Model):
         return self._horas_para_nivelar
 
     def lista_habilidades(self):
-        return [h.as_dict for h in self.habilidades.all()]
+        return [h.as_dict() for h in self.habilidades.all()]
 
     def as_dict(self, apply_privacy_settings=False):
         res = {
