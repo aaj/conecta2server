@@ -163,6 +163,8 @@ def privacidad(request, campo, *args, **kwargs):
 @require_http_methods(['GET', 'POST', 'PUT', 'DELETE'])
 @csrf_exempt
 def habilidades(request, *args, **kwargs):
+    print('method: %s' % request.method)
+    
     if request.method == 'GET':
         return MyJsonResponse(request.user.perfil.lista_habilidades(), safe=False)
     elif request.method == 'POST':
@@ -176,6 +178,8 @@ def habilidades(request, *args, **kwargs):
         else:
             return JsonResponseBadRequest(f.errors)
     elif request.method == 'PUT':
+        print('put:')
+        print(request.PUT)
         habilidad = Habilidad.objects.filter(id=request.PUT.get('id', '0')).first()
 
         if habilidad:
@@ -191,6 +195,8 @@ def habilidades(request, *args, **kwargs):
         else:
             return JsonResponseNotFound({'message': 'Habilidad no existe.'})
     elif request.method == 'DELETE':
+        print('del:')
+        print(request.DEL)
         habilidad = Habilidad.objects.filter(id=request.DEL.get('id', '0')).first()
 
         if habilidad:
