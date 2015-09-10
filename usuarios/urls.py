@@ -7,7 +7,7 @@ urlpatterns = [
     url(r'^auth$', views.auth, name='auth'),
     url(r'^auth/(?P<backend>[^/]+)$', views.social_auth, name='social_auth'),
     
-    url(r'^perfil$', views.mi_perfil, name='mi_perfil')
+    url(r'^perfil$', views.mi_perfil, name='mi_perfil'),
     url(r'^perfil/(?P<username>[^/]+)$', views.perfil, name='perfil'),
     # url(r'^register/$', views.register, name='register'),
 
