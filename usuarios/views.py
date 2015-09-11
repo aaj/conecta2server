@@ -13,6 +13,7 @@ from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 
 from conecta2.http import *
+from conecta2.decorators import parse_b64_files_in_body
 from .models import *
 from .decorators import login_required_401
 from .forms import *
@@ -104,6 +105,7 @@ def mi_perfil(request, *args, **kwargs):
     return perfil(request, username=request.user.username, *args, **kwargs)
 
 
+@parse_b64_files_in_body('imagen')
 @login_required_401
 @require_http_methods(['GET', 'POST'])
 @csrf_exempt
@@ -125,8 +127,10 @@ def perfil(request, username, *args, **kwargs):
         else:
             return MyJsonResponse({'perfil': perfil_depurado})
     else:
+        print(request.POST)
+        print(request.FILES)
         if usuario == request.user:
-            perfil_form = PerfilForm(request.POST, instance=request.user.perfil)
+            perfil_form = PerfilForm(request.POST, request.FILES, instance=request.user.perfil)
             user_form = UserForm(request.POST, instance=request.user)
 
             if perfil_form.is_valid() & user_form.is_valid():
@@ -158,13 +162,15 @@ def privacidad(request, campo, *args, **kwargs):
     else:
         return JsonResponseBadRequest({'message': '"%s" no es una opcion de privacidad.' % campo})
 
+def habilidad(request, *args, **kwargs):
+    pass
 
 @login_required_401
 @require_http_methods(['GET', 'POST', 'PUT', 'DELETE'])
 @csrf_exempt
 def habilidades(request, *args, **kwargs):
     print('method: %s' % request.method)
-    
+
     if request.method == 'GET':
         return MyJsonResponse(request.user.perfil.lista_habilidades(), safe=False)
     elif request.method == 'POST':
@@ -195,9 +201,9 @@ def habilidades(request, *args, **kwargs):
         else:
             return JsonResponseNotFound({'message': 'Habilidad no existe.'})
     elif request.method == 'DELETE':
-        print('del:')
-        print(request.DEL)
-        habilidad = Habilidad.objects.filter(id=request.DEL.get('id', '0')).first()
+        print('delete:')
+        print(request.DELETE)
+        habilidad = Habilidad.objects.filter(id=request.DELETE.get('id', '0')).first()
 
         if habilidad:
             if habilidad.perfil == request.user.perfil:

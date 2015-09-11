@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 
-from conecta2.utils import dataURI
+from conecta2.utils import image_to_dataURI
 from easy_thumbnails.fields import ThumbnailerImageField
 from votos.models import Voto
 
@@ -89,7 +89,7 @@ class Perfil(models.Model):
         }
 
         if self.imagen:
-            res['pictures'] = {'medium': dataURI(self.imagen['medium']), 'full': dataURI(self.imagen)}
+            res['pictures'] = {'medium': image_to_dataURI(self.imagen['medium']), 'full': image_to_dataURI(self.imagen)}
         else:
             res['pictures'] = {'medium': None, 'full': None}
 
