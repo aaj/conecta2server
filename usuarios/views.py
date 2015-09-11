@@ -127,8 +127,6 @@ def perfil(request, username, *args, **kwargs):
         else:
             return MyJsonResponse({'perfil': perfil_depurado})
     else:
-        print(request.POST)
-        print(request.FILES)
         if usuario == request.user:
             perfil_form = PerfilForm(request.POST, request.FILES, instance=request.user.perfil)
             user_form = UserForm(request.POST, instance=request.user)
@@ -162,15 +160,11 @@ def privacidad(request, campo, *args, **kwargs):
     else:
         return JsonResponseBadRequest({'message': '"%s" no es una opcion de privacidad.' % campo})
 
-def habilidad(request, *args, **kwargs):
-    pass
 
 @login_required_401
-@require_http_methods(['GET', 'POST', 'PUT', 'DELETE'])
+@require_http_methods(['GET', 'POST'])
 @csrf_exempt
 def habilidades(request, *args, **kwargs):
-    print('method: %s' % request.method)
-
     if request.method == 'GET':
         return MyJsonResponse(request.user.perfil.lista_habilidades(), safe=False)
     elif request.method == 'POST':
@@ -183,33 +177,30 @@ def habilidades(request, *args, **kwargs):
             return MyJsonResponse()
         else:
             return JsonResponseBadRequest(f.errors)
-    elif request.method == 'PUT':
-        print('put:')
-        print(request.PUT)
-        habilidad = Habilidad.objects.filter(id=request.PUT.get('id', '0')).first()
 
-        if habilidad:
-            if habilidad.perfil == request.user.perfil:
-                f = HabilidadForm(PUT, instance=habilidad)
-                if f.is_valid():
-                    f.save()
-                    return MyJsonResponse()
-                else:
-                    return JsonResponseBadRequest(f.errors)
-            else:
-                return JsonResponseForbidden({'message': 'Usted no tiene permiso de editar esta habilidad.'})
-        else:
-            return JsonResponseNotFound({'message': 'Habilidad no existe.'})
-    elif request.method == 'DELETE':
-        print('delete:')
-        print(request.DELETE)
-        habilidad = Habilidad.objects.filter(id=request.DELETE.get('id', '0')).first()
 
-        if habilidad:
-            if habilidad.perfil == request.user.perfil:
-                habilidad.delete()
+@login_required_401
+@require_http_methods(['PUT', 'DELETE'])
+@csrf_exempt
+def habilidad(request, id_habilidad, *args, **kwargs):
+    habilidad = Habilidad.objects.filter(id=id_habilidad).first()
+
+    if not habilidad:
+        return JsonResponseNotFound({'message': 'Habilidad no existe.'})
+
+    if request.method == 'PUT':
+        if habilidad.perfil == request.user.perfil:
+            f = HabilidadForm(request.PUT, instance=habilidad)
+            if f.is_valid():
+                f.save()
                 return MyJsonResponse()
             else:
-                return JsonResponseForbidden({'message': 'Usted no tiene permiso de eliminar esta habilidad.'})
+                return JsonResponseBadRequest(f.errors)
         else:
-            return JsonResponseNotFound({'message': 'Habilidad no existe.'})
+            return JsonResponseForbidden({'message': 'Usted no tiene permiso de editar esta habilidad.'})
+    elif request.method == 'DELETE':
+        if habilidad.perfil == request.user.perfil:
+            habilidad.delete()
+            return MyJsonResponse()
+        else:
+            return JsonResponseForbidden({'message': 'Usted no tiene permiso de eliminar esta habilidad.'})
