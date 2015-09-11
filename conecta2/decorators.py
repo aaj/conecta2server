@@ -21,8 +21,11 @@ def parse_b64_files_in_body(*fieldnames):
                             'content': content,
                             'content-type': content_type
                         })
-                else: 
-                    getattr(request, request.method)['%s-clear' % fieldname] = 'on'
+                else:
+                    qd = getattr(request, request.method).copy()
+                    qd['%s-clear' % fieldname] = 'on'
+                    setattr(request, request.method, qd)
+                    
             return view_func(request, username, *args, **kwargs)
         return _wrapped_view
     return decorator
