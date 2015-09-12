@@ -8,6 +8,8 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.contrib.contenttypes.fields import GenericRelation
 
+from conecta2.utils import image_to_dataURI
+
 from geoposition.fields import GeopositionField
 from easy_thumbnails.fields import ThumbnailerImageField
 
@@ -42,6 +44,29 @@ class Evento(models.Model):
                 raise ValidationError('El evento no puede comenzar y finalizar a la misma hora.')
             elif self.inicio > self.fin:
                 raise ValidationError('El evento no puede comenzar despues de finalizar (Fecha de inicio esta DESPUES de Fecha de finalizacion).')
+
+    def as_dict(self, preview=False, viewer=None):
+        res = {
+            'id': self.id,
+            'nombre': self.nombre,
+            'imagen': image_to_dataURI(self.imagen['large']),
+            'lugar': {'lat': float(self.lugar.latitude), 'lng': float(self.lugar.longitude), 'description': self.direccion},
+            'inicio': self.inicio.isoformat(),
+            'votos': self.votos.count(),
+            'vistas': self.vistas,
+            'institucion': self.institucion.as_dict(preview=preview)
+        }
+
+        if preview:
+            res['participantes'] = self.participantes.count()
+        else:
+            res['participantes'] = list(self.participantes.all().values_list('id', flat=True))
+            res['descripcion'] = self.descripcion
+
+        res['me_llega'] = self.votos.filter(usuario=viewer).exists()
+        res['yo_participo'] = self.participantes.filter(participacion__usuario=viewer).exists()
+
+        return res
 
     def save(self, *args, **kwargs):
         if not self.codigo_qr:

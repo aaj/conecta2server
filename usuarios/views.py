@@ -12,11 +12,14 @@ from django.views.decorators.http import require_http_methods
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 
-from conecta2.http import *
-from conecta2.decorators import parse_b64_files_in_body
 from .models import *
 from .decorators import login_required_401
 from .forms import *
+
+from conecta2.http import *
+from conecta2.decorators import parse_b64_files_in_body
+
+from votos.utils import votar
 
 from social.apps.django_app.utils import psa
 from tokenapi.tokens import token_generator
@@ -38,7 +41,7 @@ def social_auth(request, backend, *args, **kwargs):
             user = request.backend.do_auth(token)
         except Exception as ex:
             print(ex)
-            return JsonResponseBadRequest({'message': 'Invalid or missing access token.'})
+            return JsonResponseUnauthorized({'message': 'Invalid or missing access token.'})
         else:
             if user:
                 if user.is_active:
@@ -52,7 +55,7 @@ def social_auth(request, backend, *args, **kwargs):
                 else:
                     return JsonResponseUnauthorized({'message': 'Su cuenta ha sido desactivada.'})
             else:
-                return JsonResponseBadRequest({'message': 'Error de autenticacion. Intente de nuevo.'})
+                return JsonResponseUnauthorized({'message': 'Error de autenticacion. Intente de nuevo.'})
     else:
         return JsonResponseServerError('"%s" auth not supported.' % backend)
 
@@ -95,7 +98,7 @@ def auth(request, *args, **kwargs):
         else:
             return JsonResponseUnauthorized({'message': 'Su cuenta ha sido desactivada.'})
     else:
-        return JsonResponseBadRequest({'message': u'Usuario o contraseña invalida.'})
+        return JsonResponseUnauthorized({'message': u'Usuario o contraseña invalida.'})
 
 
 @login_required_401
@@ -204,3 +207,17 @@ def habilidad(request, id_habilidad, *args, **kwargs):
             return MyJsonResponse()
         else:
             return JsonResponseForbidden({'message': 'Usted no tiene permiso de eliminar esta habilidad.'})
+
+
+@login_required_401
+@require_http_methods(['POST'])
+@csrf_exempt
+def votar_perfil(request, username, *args, **kwargs):
+    perfil = Perfil.objects.filter(usuario__username__iexact=username).first()
+
+    if perfil is None:
+        return JsonResponseNotFound({'message': 'Usuario no existe!'})
+
+    me_llega = votar(thing=perfil, usuario=request.user)
+    
+    return MyJsonResponse({'me_llega': me_llega})

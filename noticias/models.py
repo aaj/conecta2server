@@ -12,6 +12,7 @@ class Noticia(models.Model):
     imagen = ThumbnailerImageField(upload_to='imagenes/noticias')
     publicada = models.DateTimeField(auto_now_add=True)
     creador = models.OneToOneField(settings.AUTH_USER_MODEL)
+    
     votos = GenericRelation('votos.Voto')
     vistas = models.PositiveIntegerField(default=0)
 
