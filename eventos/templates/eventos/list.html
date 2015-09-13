@@ -12,5 +12,10 @@
 <li>NO HAY EVENTOS</li>
 {% endfor %}
 </ul>
+
+{% if errores %}
+<h3>Errores</h3>
+{{errores}}
+{% endif %}
 </body>
 </html>

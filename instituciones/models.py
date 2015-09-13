@@ -51,8 +51,8 @@ class Necesidad(models.Model):
 
 
 class Afiliacion(models.Model):
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='afiliaciones', unique=True)
-    institucion = models.ForeignKey('Institucion', related_name='afiliaciones')
+    usuario = models.OneToOneField(settings.AUTH_USER_MODEL)
+    institucion = models.ForeignKey('Institucion', related_name='afiliados')
 
     def __unicode__(self):
         return '%s - %s' % (self.usuario, self.institucion)

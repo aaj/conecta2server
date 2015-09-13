@@ -221,3 +221,26 @@ def votar_perfil(request, username, *args, **kwargs):
     me_llega = votar(thing=perfil, usuario=request.user)
     
     return MyJsonResponse({'me_llega': me_llega})
+
+
+@login_required_401
+@require_http_methods(['GET'])
+def voluntarios(request, *args, **kwargs):
+    f = VoluntariosForm(request.GET)
+    if f.is_valid():
+        limit = f.cleaned_data['limit']
+        offset = f.cleaned_data['offset']
+
+        voluntarios = User.objects.filter(groups__name='UF').exclude(groups__name__in=['ADMIN', 'INST']).all()[offset:limit + offset]
+        print(voluntarios)
+        if request.platform == 'web':
+            return HttpResponse("OK! Lista de voluntarios")
+        else:
+            return MyJsonResponse([v.perfil.as_dict(preview=True, apply_privacy_settings=(v != request.user)) for v in voluntarios], safe=False)
+    else:
+        if request.platform == 'web':
+            return HttpResponse('Errors')
+        else:
+            return JsonResponseBadRequest(f.errors)
+
+    # voluntarios = User.objects.exclude(afiliacion=None)

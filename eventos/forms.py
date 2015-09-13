@@ -9,11 +9,11 @@ class EventoSearchForm(forms.Form):
     tense = forms.ChoiceField(required=False, choices=(('pasados', 'Eventos Pasados'), ('futuros', 'Eventos Futuros')))
 
     def clean(self):
-        fecha = self.cleaned_data['fecha']
-        limit = self.cleaned_data['limit']
-        offset = self.cleaned_data['offset']
-        tense = self.cleaned_data['tense']
-
+        fecha = self.cleaned_data.get('fecha')
+        limit = self.cleaned_data.get('limit')
+        offset = self.cleaned_data.get('offset')
+        tense = self.cleaned_data.get('tense')
+        
         if not fecha:
             self.cleaned_data['fecha'] = timezone.now()
 

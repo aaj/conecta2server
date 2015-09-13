@@ -18,6 +18,7 @@ from votos.utils import votar
 @csrf_exempt
 def eventos(request, *args, **kwargs):
     if request.method == 'GET':
+        print request.GET
         f = EventoSearchForm(request.GET)
 
         if f.is_valid():
@@ -25,7 +26,7 @@ def eventos(request, *args, **kwargs):
             limit = f.cleaned_data['limit']
             offset = f.cleaned_data['offset']
             tense = f.cleaned_data['tense']
-
+            
             eventos = Evento.objects.all()
 
             if tense == 'pasados':

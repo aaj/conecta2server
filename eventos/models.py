@@ -52,6 +52,7 @@ class Evento(models.Model):
             'imagen': image_to_dataURI(self.imagen['large']),
             'lugar': {'lat': float(self.lugar.latitude), 'lng': float(self.lugar.longitude), 'description': self.direccion},
             'inicio': self.inicio.isoformat(),
+            'fin': self.fin.isoformat(),
             'votos': self.votos.count(),
             'vistas': self.vistas,
             'institucion': self.institucion.as_dict(preview=preview)
@@ -84,7 +85,7 @@ class Evento(models.Model):
 
             self.imagen_qr = InMemoryUploadedFile(djimg, None, '%s.png' % self.codigo_qr, 'image/png', djimg.len, None)
 
-            super(Evento, self).save(*args, **kwargs)
+        super(Evento, self).save(*args, **kwargs)
 
 
     def __unicode__(self):

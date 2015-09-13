@@ -68,46 +68,55 @@ class Perfil(models.Model):
     def lista_habilidades(self):
         return [h.as_dict() for h in self.habilidades.all()]
 
-    def as_dict(self, apply_privacy_settings=False):
+    def as_dict(self, preview=False, apply_privacy_settings=False):
         res = {
-            'id': self.usuario.id, 
-            'username': self.usuario.username, 
-            'email': self.usuario.email, 
-            'first_name': self.usuario.first_name, 
-            'last_name': self.usuario.last_name, 
-            'short_name': self.usuario.get_short_name(), 
-            'full_name': self.usuario.get_full_name(), 
-            'sexo': self.sexo,
-            'fecha_nacimiento': self.fecha_nacimiento,
-            'telefono': self.telefono,
-            'bio': self.bio,
-            'privacidad': self.usuario.privacidad.as_dict(),
+            'id': self.usuario.id,
+            'username': self.usuario.username,
+            'full_name': self.usuario.get_full_name(),
             'votos': {
                 'recibidos': self.votos.count(),
                 'dados': Voto.objects.filter(usuario=self.usuario, content_type__model='perfil').count()
             }
         }
 
-        if self.imagen:
-            res['pictures'] = {'medium': image_to_dataURI(self.imagen['medium']), 'full': image_to_dataURI(self.imagen)}
+        if preview:
+            if self.imagen:
+                res['pictures'] = {'medium': image_to_dataURI(self.imagen['medium'])}
+            else:
+                res['pictures'] = {'medium': None}
         else:
-            res['pictures'] = {'medium': None, 'full': None}
+            res.update({
+                'email': self.usuario.email, 
+                'first_name': self.usuario.first_name, 
+                'last_name': self.usuario.last_name, 
+                'short_name': self.usuario.get_short_name(), 
+                'sexo': self.sexo,
+                'fecha_nacimiento': self.fecha_nacimiento,
+                'telefono': self.telefono,
+                'bio': self.bio,
+                'privacidad': self.usuario.privacidad.as_dict(),
+            })
+
+            if self.imagen:
+                res['pictures'] = {'full': image_to_dataURI(self.imagen)}
+            else:
+                res['pictures'] = {'full': None}
 
         if apply_privacy_settings:
             if not self.usuario.privacidad.email_publico:
-                res['email'] = ''
+                res.pop('email', None)
 
             if not self.usuario.privacidad.sexo_publico:
-                res['sexo'] = ''
+                res.pop('sexo', None)
 
             if not self.usuario.privacidad.fecha_nacimiento_publico:
-                res['fecha_nacimiento'] = ''
+                res.pop('fecha_nacimiento', None)
 
             if not self.usuario.privacidad.telefono_publico:
-                res['telefono'] = ''
+                res.pop('telefono', None)
 
             if not self.usuario.privacidad.bio_publico:
-                res['bio'] = ''
+                res.pop('bio', None)
         
         return res
 

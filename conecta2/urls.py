@@ -19,7 +19,7 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url('', include('social.apps.django_app.urls', namespace='social')),
-    url(r'^usuarios/', include('usuarios.urls', namespace='usuarios')),
+    url(r'^usuarios', include('usuarios.urls', namespace='usuarios')),
     url(r'^eventos', include('eventos.urls', namespace='eventos')),
     url(r'^noticias', include('noticias.urls', namespace='noticias')),
     url(r'^instituciones', include('instituciones.urls', namespace='instituciones')),
