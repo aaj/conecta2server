@@ -68,7 +68,7 @@ class Perfil(models.Model):
     def lista_habilidades(self):
         return [h.as_dict() for h in self.habilidades.all()]
 
-    def as_dict(self, preview=False, apply_privacy_settings=False):
+    def as_dict(self, preview=False, viewer=None):
         res = {
             'id': self.usuario.id,
             'username': self.usuario.username,
@@ -102,7 +102,7 @@ class Perfil(models.Model):
             else:
                 res['pictures'] = {'full': None}
 
-        if apply_privacy_settings:
+        if viewer != self.usuario:
             if not self.usuario.privacidad.email_publico:
                 res.pop('email', None)
 
@@ -118,6 +118,8 @@ class Perfil(models.Model):
             if not self.usuario.privacidad.bio_publico:
                 res.pop('bio', None)
         
+        res['me_llega'] = self.votos.filter(usuario=viewer).exists()
+
         return res
 
     def save(self, *args, **kwargs):

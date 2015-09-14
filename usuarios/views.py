@@ -122,7 +122,7 @@ def perfil(request, username, *args, **kwargs):
         else:
             return JsonResponseNotFound({'message': msg})
 
-    perfil_depurado = usuario.perfil.as_dict(apply_privacy_settings=(usuario != request.user))
+    perfil_depurado = usuario.perfil.as_dict(preview=False, viewer=request.user)
 
     if request.method == 'GET':
         if request.platform == 'web':
@@ -236,7 +236,7 @@ def voluntarios(request, *args, **kwargs):
         if request.platform == 'web':
             return HttpResponse("OK! Lista de voluntarios")
         else:
-            return MyJsonResponse([v.perfil.as_dict(preview=True, apply_privacy_settings=(v != request.user)) for v in voluntarios], safe=False)
+            return MyJsonResponse([v.perfil.as_dict(preview=True, viewer=request.user) for v in voluntarios], safe=False)
     else:
         if request.platform == 'web':
             return HttpResponse('Errors')

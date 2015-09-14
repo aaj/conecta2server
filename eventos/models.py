@@ -38,6 +38,18 @@ class Evento(models.Model):
         horas = segundos / 3600
         return horas
 
+    def participacion(self, usuario=None):
+        existe = False
+        verificada = False
+
+        if usuario:
+            p = Participacion.objects.filter(evento=self, usuario=usuario).first()
+
+            existe = p is not None
+            verificada = p.verificada if p is not None else False
+        
+        return {'existe': existe, 'verificada': verificada}
+
     def clean(self):
         if self.inicio and self.fin:
             if self.inicio == self.fin:
@@ -65,7 +77,7 @@ class Evento(models.Model):
             res['descripcion'] = self.descripcion
 
         res['me_llega'] = self.votos.filter(usuario=viewer).exists()
-        res['yo_participo'] = self.participantes.filter(participacion__usuario=viewer).exists()
+        res['participacion'] = self.participacion(usuario=viewer)
 
         return res
 
@@ -139,6 +151,9 @@ class Participacion(models.Model):
 
     def __unicode__(self):
         return '%s - %s' % (self.evento.nombre, self.usuario.get_full_name())
+
+    class Meta:
+         unique_together = ('evento', 'usuario')
 
 
 class Recuerdo(models.Model):

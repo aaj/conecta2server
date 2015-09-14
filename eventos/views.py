@@ -84,3 +84,24 @@ def votar_evento(request, id_evento, *args, **kwargs):
     me_llega = votar(thing=evento, usuario=request.user)
 
     return MyJsonResponse({'me_llega': me_llega})
+
+
+@login_required_401
+@require_http_methods(['POST'])
+@csrf_exempt
+def participar(request, id_evento, *args, **kwargs):
+    evento = Evento.objects.filter(id=id_evento).first()
+
+    if evento is None:
+        return JsonResponseNotFound({'message': 'Evento no existe!'})
+
+    participacion = Participacion.objects.filter(evento=evento, usuario=request.user).first()
+
+    if participacion is None:
+        participacion = Participacion(evento=evento, usuario=request.user, verificada=False)
+        participacion.save()
+    else:
+        if not participacion.verificada:
+            participacion.delete()
+    
+    return MyJsonResponse(evento.participacion(usuario=request.user))
