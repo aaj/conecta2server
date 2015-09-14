@@ -2,6 +2,7 @@ from django.http import *
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 
 from .models import *
 from .forms import *
@@ -103,5 +104,29 @@ def participar(request, id_evento, *args, **kwargs):
     else:
         if not participacion.verificada:
             participacion.delete()
+    
+    return MyJsonResponse(evento.participacion(usuario=request.user))
+
+
+@login_required_401
+@require_http_methods(['POST'])
+@csrf_exempt
+def verificar(request, id_evento, codigo, *args, **kwargs):
+    evento = Evento.objects.filter(id=id_evento, codigo_qr=codigo).first()
+
+    if evento is None:
+        return JsonResponseNotFound({'message': 'Evento con ese codigo no existe!'})
+
+    if timezone.now() > evento.fin:
+        return JsonResponseForbidden({'message': 'Este evento ya finalizo.'})
+
+    participacion = Participacion.objects.filter(evento=evento, usuario=request.user).first()
+
+    if participacion is None:
+        participacion = Participacion(evento=evento, usuario=request.user, verificada=True)
+    else:
+        participacion.verificada = True
+    
+    participacion.save()
     
     return MyJsonResponse(evento.participacion(usuario=request.user))
