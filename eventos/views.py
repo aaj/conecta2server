@@ -24,6 +24,8 @@ def eventos(request, *args, **kwargs):
 
         if f.is_valid():
             fecha = f.cleaned_data['fecha']
+            print("LA FECHA PARA BUSCAR ES: ")
+            print(fecha)
             limit = f.cleaned_data['limit']
             offset = f.cleaned_data['offset']
             tense = f.cleaned_data['tense']
