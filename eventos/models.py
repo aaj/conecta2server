@@ -50,6 +50,15 @@ class Evento(models.Model):
         
         return {'existe': existe, 'verificada': verificada}
 
+    def participantes_count(self):
+        return self.participantes.count()
+
+    def participantes_verificados_count(self):
+        return self.participantes.filter(participacion__verificada=True).count()
+        
+    def votos_count(self):
+        return self.votos.count()
+
     def clean(self):
         if self.inicio and self.fin:
             if self.inicio == self.fin:
@@ -65,13 +74,13 @@ class Evento(models.Model):
             'lugar': {'lat': float(self.lugar.latitude), 'lng': float(self.lugar.longitude), 'description': self.direccion},
             'inicio': self.inicio.isoformat(),
             'fin': self.fin.isoformat(),
-            'votos': self.votos.count(),
+            'votos': self.votos_count(),
             'vistas': self.vistas,
             'institucion': self.institucion.as_dict(preview=preview)
         }
 
         if preview:
-            res['participantes'] = self.participantes.count()
+            res['participantes'] = self.participantes_count()
         else:
             res['participantes'] = list(self.participantes.all().values_list('id', flat=True))
             res['descripcion'] = self.descripcion
@@ -120,7 +129,7 @@ class Logro(models.Model):
         super(Logro, self).save(*args, **kwargs)
 
         # OJO: Esto no funciona en el admin de django. Por un problema raro.
-        # Tuve que duplicar este codigo en el LogroAdmin en admin.py, para que
+        # Tuve que duplicar este codigo en el LogroInline en admin.py, para que
         # funcione aya.
         for usuario in self.evento.participantes.filter(participacion__verificada=True).all():
             if not usuario.logros.filter(id=self.id).exists():
@@ -153,7 +162,8 @@ class Participacion(models.Model):
         return '%s - %s' % (self.evento.nombre, self.usuario.get_full_name())
 
     class Meta:
-         unique_together = ('evento', 'usuario')
+        verbose_name_plural = 'participaciones'
+        unique_together = ('evento', 'usuario')
 
 
 class Recuerdo(models.Model):

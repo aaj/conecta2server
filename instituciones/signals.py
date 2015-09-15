@@ -13,11 +13,11 @@ def afiliacion_creada(sender, **kwargs):
     afiliacion.usuario.save()
 
 
-@receiver(post_delete, sender=Afiliacion)
-def afiliacion_eliminada(sender, **kwargs):
-    inst_group = Group.objects.get(name='INST')
-    afiliacion = kwargs['instance']
-    afiliacion.usuario.groups.remove(inst_group)
-    if not afiliacion.usuario.is_superuser:
-        afiliacion.usuario.is_staff = False
-    afiliacion.usuario.save()
+# @receiver(post_delete, sender=Afiliacion)
+# def afiliacion_eliminada(sender, **kwargs):
+#     inst_group = Group.objects.get(name='INST')
+#     afiliacion = kwargs['instance']
+#     afiliacion.usuario.groups.remove(inst_group)
+#     if not afiliacion.usuario.is_superuser:
+#         afiliacion.usuario.is_staff = False
+#     afiliacion.usuario.save()

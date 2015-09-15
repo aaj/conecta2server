@@ -160,6 +160,7 @@ SOCIAL_AUTH_PIPELINE = (
 )
 
 MEDIA_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../media/').replace('\\','/'))
+MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../static/').replace('\\','/'))
 
 THUMBNAIL_PRESERVE_EXTENSIONS = True

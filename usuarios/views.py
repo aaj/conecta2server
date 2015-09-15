@@ -50,7 +50,7 @@ def social_auth(request, backend, *args, **kwargs):
                     return MyJsonResponse({
                         'user': user.pk, 
                         'token': token_generator.make_token(user), 
-                        'perfil': user.perfil.as_dict()
+                        'perfil': user.perfil.as_dict(preview=False, viewer=user)
                     })
                 else:
                     return JsonResponseUnauthorized({'message': 'Su cuenta ha sido desactivada.'})
@@ -91,7 +91,7 @@ def auth(request, *args, **kwargs):
                 return MyJsonResponse({
                     'user': user.pk, 
                     'token': token_generator.make_token(user), 
-                    'perfil': user.perfil.as_dict()
+                    'perfil': user.perfil.as_dict(preview=False, viewer=user)
                 })   
             else:
                 return JsonResponseUnauthorized({'message': 'Tienes que verificar tu correo electronico antes de ingresar.'})
@@ -175,7 +175,7 @@ def habilidades(request, *args, **kwargs):
 
         if f.is_valid():
             nueva_habilidad = f.save(commit=False)
-            nueva_habilidad.perfil = request.user.perfil
+            nueva_habilidad.usuario = request.user
             nueva_habilidad.save()
             return MyJsonResponse()
         else:
@@ -192,7 +192,7 @@ def habilidad(request, id_habilidad, *args, **kwargs):
         return JsonResponseNotFound({'message': 'Habilidad no existe.'})
 
     if request.method == 'PUT':
-        if habilidad.perfil == request.user.perfil:
+        if habilidad.usuario == request.user:
             f = HabilidadForm(request.PUT, instance=habilidad)
             if f.is_valid():
                 f.save()
@@ -202,7 +202,7 @@ def habilidad(request, id_habilidad, *args, **kwargs):
         else:
             return JsonResponseForbidden({'message': 'Usted no tiene permiso de editar esta habilidad.'})
     elif request.method == 'DELETE':
-        if habilidad.perfil == request.user.perfil:
+        if habilidad.usuario == request.user:
             habilidad.delete()
             return MyJsonResponse()
         else:
@@ -231,7 +231,7 @@ def voluntarios(request, *args, **kwargs):
         limit = f.cleaned_data['limit']
         offset = f.cleaned_data['offset']
 
-        voluntarios = User.objects.filter(groups__name='UF').exclude(groups__name__in=['ADMIN', 'INST']).all()[offset:limit + offset]
+        voluntarios = User.objects.filter(groups__name='UF').exclude(groups__name__in=['SA', 'INST']).all()[offset:limit + offset]
         print(voluntarios)
         if request.platform == 'web':
             return HttpResponse("OK! Lista de voluntarios")

@@ -41,6 +41,9 @@ class Institucion(models.Model):
     def __unicode__(self):
         return self.nombre
 
+    class Meta:
+        verbose_name_plural = 'instituciones'
+
 
 class Necesidad(models.Model):
     institucion = models.ForeignKey('Institucion', related_name='necesidades')
@@ -49,6 +52,9 @@ class Necesidad(models.Model):
     def __unicode__(self):
         return '%s - %s' % (self.descripcion, self.institucion.nombre)
 
+    class Meta:
+        verbose_name_plural = 'necesidades'
+
 
 class Afiliacion(models.Model):
     usuario = models.OneToOneField(settings.AUTH_USER_MODEL)
@@ -56,3 +62,6 @@ class Afiliacion(models.Model):
 
     def __unicode__(self):
         return '%s - %s' % (self.usuario, self.institucion)
+
+    class Meta:
+        verbose_name_plural = 'afiliaciones'

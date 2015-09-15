@@ -111,8 +111,8 @@ def participar(request, id_evento, *args, **kwargs):
 @login_required_401
 @require_http_methods(['POST'])
 @csrf_exempt
-def verificar(request, id_evento, codigo, *args, **kwargs):
-    evento = Evento.objects.filter(id=id_evento, codigo_qr=codigo).first()
+def verificar(request, codigo, *args, **kwargs):
+    evento = Evento.objects.filter(codigo_qr=codigo).first()
 
     if evento is None:
         return JsonResponseNotFound({'message': 'Evento con ese codigo no existe!'})
@@ -128,5 +128,5 @@ def verificar(request, id_evento, codigo, *args, **kwargs):
         participacion.verificada = True
     
     participacion.save()
-    
+
     return MyJsonResponse(evento.participacion(usuario=request.user))

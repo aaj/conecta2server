@@ -30,7 +30,7 @@ class Perfil(models.Model):
             int(bool(self.telefono)),
             int(bool(self.bio)),
             int(bool(self.imagen)),
-            int(bool(self.habilidades.all()))
+            int(bool(self.usuario.habilidades.all()))
         ]
 
         suma = sum(valores)
@@ -66,7 +66,7 @@ class Perfil(models.Model):
         return self._horas_para_nivelar
 
     def lista_habilidades(self):
-        return [h.as_dict() for h in self.habilidades.all()]
+        return [h.as_dict() for h in self.usuario.habilidades.all()]
 
     def as_dict(self, preview=False, viewer=None):
         res = {
@@ -133,6 +133,9 @@ class Perfil(models.Model):
     def __unicode__(self):
         return '%s (%d%% complete)' % (self.usuario.get_full_name() or self.usuario, self.porcentaje())
 
+    class Meta:
+        verbose_name_plural = 'perfiles'
+
 
 class Privacidad(models.Model):
     usuario = models.OneToOneField(settings.AUTH_USER_MODEL)
@@ -154,22 +157,27 @@ class Privacidad(models.Model):
         }
 
     def __unicode__(self):
-        return '%s - Privacy Settings' % (self.usuario)
+        return '%s' % (self.usuario)
+
+    class Meta:
+        verbose_name_plural = 'privacidades'
 
 
 class Habilidad(models.Model):
-    perfil = models.ForeignKey('Perfil', related_name='habilidades')
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='habilidades')
     descripcion = models.CharField(max_length=500)
 
     def as_dict(self):
         return {'id': self.id, 'descripcion': self.descripcion}
 
     def __unicode__(self):
-        return '%s: %s' % (self.perfil.usuario, self.descripcion)
+        return '%s' % (self.descripcion)
 
     class Meta:
         order_with_respect_to = 'perfil'
 
+    class Meta:
+        verbose_name_plural = 'habilidades'
 
 
 class Nivel(models.Model):
@@ -191,4 +199,5 @@ class Nivel(models.Model):
         return '%d) %s - %d horas' % (self.posicion, self.titulo, self.horas)
 
     class Meta:
+        verbose_name_plural = 'niveles'
         ordering = ['horas']

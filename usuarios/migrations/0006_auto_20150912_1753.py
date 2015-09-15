@@ -7,7 +7,7 @@ from django.db import models, migrations
 def eliminar_grupos_default(apps, schema_editor):
     Group = apps.get_model('auth', 'Group')
 
-    Group.objects.filter(name='ADMIN').delete()
+    Group.objects.filter(name='SA').delete()
     Group.objects.filter(name='INST').delete()
     Group.objects.filter(name='UF').delete()
 
@@ -15,8 +15,8 @@ def eliminar_grupos_default(apps, schema_editor):
 def crear_grupos_default(apps, schema_editor):
     Group = apps.get_model('auth', 'Group')
     
-    if not Group.objects.filter(name='ADMIN').exists():
-        admin = Group(name='ADMIN')
+    if not Group.objects.filter(name='SA').exists():
+        admin = Group(name='SA')
         admin.save()
 
     if not Group.objects.filter(name='INST').exists():
