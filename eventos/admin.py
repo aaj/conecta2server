@@ -10,6 +10,7 @@ class LogroInline(admin.TabularInline):
 
         for usuario in form.instance.evento.participantes.filter(participacion__verificada=True).all():
             if not usuario.logros.filter(id=form.instance.id).exists():
+                print("(admin)Asignando logro! aqui hay que mandar un push!")
                 form.instance.usuarios.add(usuario)
 
 

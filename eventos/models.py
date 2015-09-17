@@ -125,6 +125,24 @@ class Logro(models.Model):
     def descripcion(self):
         return 'Atendio al evento "%s".' % self.evento.nombre
 
+    def as_dict(self):
+        return {
+            'nombre': self.nombre,
+            'descripcion': self.descripcion(),
+            'imagen': image_to_dataURI(self.imagen['large']),
+            'evento': {
+                'id': self.evento.id,
+                'nombre': self.evento.nombre,
+                'imagen': image_to_dataURI(self.evento.imagen['small']),
+                'inicio': self.evento.inicio.isoformat(),
+                'institucion': {
+                    'id': self.evento.institucion.id,
+                    'nombre': self.evento.institucion.nombre,
+                    'logo': image_to_dataURI(self.evento.institucion.logo['small'])
+                }
+            }
+        }
+
     def save(self, *args, **kwargs):
         super(Logro, self).save(*args, **kwargs)
 
@@ -133,6 +151,7 @@ class Logro(models.Model):
         # funcione aya.
         for usuario in self.evento.participantes.filter(participacion__verificada=True).all():
             if not usuario.logros.filter(id=self.id).exists():
+                print("(model)Asignando logro! aqui hay que mandar un push!")
                 self.usuarios.add(usuario)
 
     def __unicode__(self):
@@ -146,7 +165,7 @@ class Participacion(models.Model):
 
     def save(self, *args, **kwargs):
         super(Participacion, self).save(*args, **kwargs)
-        # Aqui se asignan logros a usuarios que participan a un evento, siemprey cuando
+        # Aqui se asignan logros a usuarios que participan a un evento, siempre y cuando
         # el evento tenga un logro asociado y la participacion haya sido verificada
         # (mediante el codigo qr).
 

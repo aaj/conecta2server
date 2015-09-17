@@ -18,11 +18,14 @@ class Institucion(models.Model):
 
     votos = GenericRelation('votos.Voto')
     
-    def as_dict(self, preview=False):
+    def as_dict(self, preview=False, viewer=None):
         res = {
             'id': self.id,
             'nombre': self.nombre,
-            'logo': image_to_dataURI(self.logo['small'])
+            'logo': image_to_dataURI(self.logo['small']),
+            'votos': self.votos.count(),
+            'eventos': self.eventos.count(),
+            'me_llega': self.votos.filter(usuario=viewer).exists()
         }
         
         if not preview:
@@ -32,8 +35,7 @@ class Institucion(models.Model):
                 'telefono_contacto': self.telefono_contacto,
                 'direccion_contacto': self.direccion_contacto,
                 'correo_contacto': self.correo_contacto,
-                'pagina': self.pagina,
-                'votos': self.votos.count()
+                'pagina': self.pagina
             })
 
         return res
