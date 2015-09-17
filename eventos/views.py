@@ -128,4 +128,4 @@ def verificar(request, codigo, *args, **kwargs):
     
     participacion.save()
 
-    return MyJsonResponse(evento.participacion(usuario=request.user))
+    return MyJsonResponse(evento.as_dict(preview=False, viewer=request.user))
