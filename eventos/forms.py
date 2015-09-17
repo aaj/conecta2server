@@ -1,9 +1,10 @@
 from django import forms
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.core.validators import MinValueValidator
 
 class EventoSearchForm(forms.Form):
-    fecha = forms.DateTimeField(required=False)
+    fecha = forms.CharField(required=False)
     limit = forms.IntegerField(required=False, validators=[MinValueValidator(1)])
     offset = forms.IntegerField(required=False)
     tense = forms.ChoiceField(required=False, choices=(('pasados', 'Eventos Pasados'), ('futuros', 'Eventos Futuros')))
@@ -16,6 +17,14 @@ class EventoSearchForm(forms.Form):
         
         if not fecha:
             self.cleaned_data['fecha'] = timezone.now()
+        else:
+            try:
+                self.cleaned_data['fecha'] = parse_datetime(fecha)
+            except:
+                self.add_error('fecha', 'Introduzca una fecha valida.')
+            else:
+                if self.cleaned_data['fecha'] is None:
+                    self.add_error('fecha', 'Introduzca una fecha valida.')
 
         if not limit:
             self.cleaned_data['limit'] = 1

@@ -2,6 +2,51 @@ from django.contrib import admin
 
 from .models import *
 
+class InstitucionFilter(admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = 'institucion'
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'institucion'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar.
+        """
+        ids_instituciones = list(
+            Noticia.objects.exclude(creador__afiliacion=None).values_list(
+                'creador__afiliacion__institucion__id',
+                'creador__afiliacion__institucion__nombre'
+            ).order_by(
+                '-creador__afiliacion__institucion'
+            ).distinct(
+                'creador__afiliacion__institucion'
+            )
+        )
+
+        ids_instituciones.insert(0, ('GENERAL', 'GENERAL'))
+        return ids_instituciones
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+
+        if self.value() is None:
+            return queryset.all()
+        elif self.value() == 'GENERAL':
+            return queryset.filter(creador__afiliacion=None)
+        else:
+            return queryset.filter(creador__afiliacion__institucion=self.value())
+
+
 class NoticiaAdmin(admin.ModelAdmin):
     model = Noticia
     list_display = ('titulo', 'publicada', 'creador', 'institucion')
@@ -27,7 +72,7 @@ class NoticiaAdmin(admin.ModelAdmin):
 
     def get_list_filter(self, request):
         if request.user.is_superuser or request.user.groups.filter(name='SA').exists():
-            return ('creador__afiliacion__institucion',)
+            return (InstitucionFilter,)
         else:
             tuple()
 

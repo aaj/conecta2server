@@ -178,7 +178,7 @@ GEOIP_DATABASE = os.path.join(BASE_DIR, 'GeoLiteCity.dat')
 
 TOKEN_CHECK_ACTIVE_USER = True
 
-# DATETIME_INPUT_FORMATS = ('%Y-%m-%d %H:%M:%S.%f%z',)
+DATETIME_INPUT_FORMATS = ('%Y-%m-%dT%H:%M:%S%z',)
 #, '%Y-%m-%dT%H:%M:%S'
 
 try:
