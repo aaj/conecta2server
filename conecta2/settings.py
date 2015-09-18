@@ -167,7 +167,7 @@ THUMBNAIL_PRESERVE_EXTENSIONS = True
 THUMBNAIL_ALIASES = {
     '': {
         'small': {'size': (32, 32), 'crop': 'smart'},
-        'medium': {'size': (128, 128), 'crop': 'smart'},
+        'medium': {'size': (256, 256), 'crop': 'smart'},
         'large': {'size': (512, 512), 'crop': 'smart'}
     },
 }

@@ -3,7 +3,10 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.core.validators import MinValueValidator
 
+from instituciones.models import Institucion
+
 class EventoSearchForm(forms.Form):
+    institucion = forms.ModelChoiceField(required=False, queryset=Institucion.objects.all())
     fecha = forms.CharField(required=False)
     limit = forms.IntegerField(required=False, validators=[MinValueValidator(1)])
     offset = forms.IntegerField(required=False)
@@ -36,7 +39,3 @@ class EventoSearchForm(forms.Form):
             self.cleaned_data['tense'] = 'all'
 
         return self.cleaned_data
-
-
-class EventoForm(forms.Form):
-    pass

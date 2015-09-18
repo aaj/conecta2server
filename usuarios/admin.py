@@ -56,42 +56,45 @@ class MyUserAdmin(UserAdmin):
     inlines = [PerfilInline, PrivacidadInline, HabilidadInline]
 
     def get_fieldsets(self, request, obj=None):
-        if request.user.is_superuser:
-            return self.fieldsets #usar la configuracion default, osea mostrar TODOs los campos habidos y por haber
+        if not obj:
+            return self.add_fieldsets
         else:
-            return (
-                (
-                    None, 
-                    {
-                        'fields': (
-                            'username', 
-                            'password'
-                        )
-                    }
-                ),
-                
-                (
-                    _('Personal info'), 
-                    {
-                        'fields': (
-                            'first_name', 
-                            'last_name', 
-                            'email'
-                        )
-                    }
-                ),
-                
-                (
-                    _('Permissions'), 
-                    {
-                        'fields': (
-                            'is_active', 
-                            'is_staff',
-                            'groups'
-                        )
-                    }
-                ),
-            )
+            if request.user.is_superuser:
+                return self.fieldsets #usar la configuracion default, osea mostrar TODOs los campos habidos y por haber
+            else:
+                return (
+                    (
+                        None, 
+                        {
+                            'fields': (
+                                'username', 
+                                'password'
+                            )
+                        }
+                    ),
+                    
+                    (
+                        _('Personal info'), 
+                        {
+                            'fields': (
+                                'first_name', 
+                                'last_name', 
+                                'email'
+                            )
+                        }
+                    ),
+                    
+                    (
+                        _('Permissions'), 
+                        {
+                            'fields': (
+                                'is_active', 
+                                'is_staff',
+                                'groups'
+                            )
+                        }
+                    ),
+                )
 
     def get_readonly_fields(self, request, obj):
         if request.user.is_superuser or request.user.groups.filter(name='SA').exists():

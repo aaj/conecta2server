@@ -14,11 +14,6 @@ urlpatterns = [
     url(r'^/perfil/(?P<username>[^/]+)/habilidades/(?P<id_habilidad>[0-9]+)$', views.habilidad, name='perfil'),
     url(r'^/perfil/(?P<username>[^/]+)/mellega$', views.votar_perfil, name='votar_perfil'),
     # url(r'^register/$', views.register, name='register'),
-
     url(r'^/privacidad/(?P<campo>[^/]+)$', views.privacidad, name='privacidad'),
-
-    # url(r'^/habilidades$', views.habilidades, name='habilidades'),
-    # url(r'^/habilidades/(?P<id_habilidad>[0-9]+)$', views.habilidad, name='habilidad'),
-    #logros
     url(r'^/voluntarios$', views.voluntarios, name='voluntarios')
 ]

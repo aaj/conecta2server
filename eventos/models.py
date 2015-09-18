@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.contrib.contenttypes.fields import GenericRelation
 
-from conecta2.utils import image_to_dataURI
+from conecta2.utils import image_to_dataURI, send_push
 
 from geoposition.fields import GeopositionField
 from easy_thumbnails.fields import ThumbnailerImageField
@@ -149,10 +149,32 @@ class Logro(models.Model):
         # OJO: Esto no funciona en el admin de django. Por un problema raro.
         # Tuve que duplicar este codigo en el LogroInline en admin.py, para que
         # funcione aya.
+        user_ids = []
+
         for usuario in self.evento.participantes.filter(participacion__verificada=True).all():
             if not usuario.logros.filter(id=self.id).exists():
-                print("(model)Asignando logro! aqui hay que mandar un push!")
-                self.usuarios.add(usuario)
+                usuario.logros.add(self)
+                user_ids.append(str(usuario.id))
+
+        if len(user_ids) > 0:
+            post_data_dict = {
+                'user_ids': user_ids,
+                'notification': {
+                    'alert': 'Has obtenido el logro "%s"!' % (self.evento.logro.nombre),
+                    "android": {
+                        "collapseKey": "logro",
+                        "delayWhileIdle": True,
+                        "timeToLive": 300,
+                        "payload": {
+                            "title":"Mea Punto!"
+                        }
+                    }
+                }
+            }
+
+            print("Sending push to:")
+            print(user_ids)
+            send_push(post_data_dict=post_data_dict)
 
     def __unicode__(self):
         return '%s' % self.nombre
@@ -171,11 +193,29 @@ class Participacion(models.Model):
 
         try:
             if self.verificada:
-                self.evento.logro.usuarios.add(self.usuario)
-            else:
-                self.evento.logro.usuarios.remove(self.usuario)
+                if not self.usuario.logros.filter(id=self.evento.logro.id).exists():
+                    self.usuario.logros.add(self.evento.logro)
+                    
+                    post_data_dict = {
+                        'user_ids': [str(self.usuario.id)],
+                        'notification': {
+                            'alert': 'Has obtenido el logro "%s"!' % (self.evento.logro.nombre),
+                            "android":{
+                                "collapseKey": "logro",
+                                "delayWhileIdle": True,
+                                "timeToLive": 300,
+                                "payload": {
+                                    "title":"Mea Punto!"
+                                }
+                            }
+                        }
+                    }
+
+                    send_push(user=self.usuario, post_data_dict=post_data_dict)
+            else: # ESTO NO VA! SOLO ES PARA DESARROLLO! LOS LOGROS NO SE LE QUITAN AL USUARIO, BAJO NINGUNA CIRCUNSTANCIA
+                self.usuario.logros.remove(self.evento.logro)
         except Logro.DoesNotExist:
-            pass #Este evento no tiene logro asignado
+            pass #Este evento no tiene logro asignado. Ni modo.
 
     def __unicode__(self):
         return '%s - %s' % (self.evento.nombre, self.usuario.get_full_name())
@@ -186,8 +226,14 @@ class Participacion(models.Model):
 
 
 class Recuerdo(models.Model):
-    evento = models.ForeignKey('Evento')
+    evento = models.ForeignKey('Evento', related_name='recuerdos')
     imagen = ThumbnailerImageField(upload_to='imagenes/eventos/recuerdos')
+
+    def as_dict(self, preview=False):
+        if preview:
+            return {'id': self.id, 'evento': self.evento.id, 'imagen': image_to_dataURI(self.imagen['medium'])}
+        else:
+            return {'id': self.id, 'evento': self.evento.id, 'imagen': image_to_dataURI(self.imagen)}
 
     def __unicode__(self):
         return '%s (%s)' % (self.evento.nombre, self.imagen.name)

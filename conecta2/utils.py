@@ -1,6 +1,9 @@
+import json
 import imghdr
 import mimetypes
-from base64 import b64encode, b64decode
+import urllib2
+
+from base64 import b64encode, b64decode, encodestring
 
 def image_to_dataURI(imageField):
     try:
@@ -46,4 +49,22 @@ def b64content_from_dataURI(dataURI):
         return ''
 
 
-#data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ
+def send_push(post_data_dict):
+    post_data_json = json.dumps(post_data_dict)
+    app_id = '5cb9d9e9'
+    private_key = '7c697ed2ceaa91cd68d0bfdbe8bcc3f960e090f23eb4d469'
+    url = "https://push.ionic.io/api/v1/push"
+    req = urllib2.Request(url, data=post_data_json)
+    req.add_header("Content-Type", "application/json")
+    req.add_header("X-Ionic-Application-Id", app_id)
+    b64 = encodestring('%s:' % private_key).replace('\n', '')
+    req.add_header("Authorization", "Basic %s" % b64)
+
+    try:
+        resp = urllib2.urlopen(req)
+    except urllib2.HTTPError as e:
+        print('Error enviando push: ')
+        print(e)
+        print(e.read())
+        print('Datos: ')
+        print(post_data_json)

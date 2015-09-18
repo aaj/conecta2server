@@ -14,16 +14,9 @@ class LogroInline(admin.TabularInline):
                 form.instance.usuarios.add(usuario)
 
 
-# class LogroAdmin(admin.ModelAdmin):
-#     model = Logro
-
-#     def save_related(self, request, form, formsets, change):
-#         super(LogroAdmin, self).save_related(request, form, formsets, change)
-
-#         for usuario in form.instance.evento.participantes.filter(participacion__verificada=True).all():
-#             if not usuario.logros.filter(id=form.instance.id).exists():
-#                 form.instance.usuarios.add(usuario)
-
+class RecuerdoInline(admin.TabularInline):
+    model = Recuerdo
+    extra = 1
 
 class EventoAdmin(admin.ModelAdmin):
     model = Evento
@@ -32,7 +25,7 @@ class EventoAdmin(admin.ModelAdmin):
     save_on_top = True
     view_on_site = False
 
-    inlines = [LogroInline]
+    inlines = [LogroInline, RecuerdoInline]
 
     def has_change_permission(self, request, obj=None):
         if obj is None:
