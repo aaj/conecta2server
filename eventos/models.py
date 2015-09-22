@@ -24,7 +24,7 @@ class Evento(models.Model):
     imagen = ThumbnailerImageField(upload_to='imagenes/eventos')
     inicio = models.DateTimeField()
     fin = models.DateTimeField()
-    participantes = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Participacion', related_name='participaciones')
+    participantes = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Participacion', related_name='eventos')
     
     codigo_qr = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
     imagen_qr = ThumbnailerImageField(upload_to='imagenes/eventos/qr', editable=False, blank=True)

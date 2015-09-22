@@ -28,17 +28,21 @@ class InstitucionFilter(admin.SimpleListFilter):
     title = 'institucion'
     parameter_name = 'institucion'
 
+    def list_uniquifier(self, seq):
+        seen = set()
+        seen_add = seen.add
+        return [ x for x in seq if not (x in seen or seen_add(x))]
+
     def lookups(self, request, model_admin):
-        ids_instituciones = list(
-            User.objects.exclude(afiliacion=None).values_list(
+        ids_instituciones = self.list_uniquifier(list(
+            User.objects.exclude(afiliacion=None).all().order_by(
+                'afiliacion__institucion'
+            ).values_list(
                 'afiliacion__institucion__id',
                 'afiliacion__institucion__nombre'
-            ).order_by(
-                '-afiliacion__institucion'
-            ).distinct(
-                'afiliacion__institucion'
             )
-        )
+        ))
+
         ids_instituciones.insert(0, ('NINGUNA', 'NINGUNA'))
         return ids_instituciones
 

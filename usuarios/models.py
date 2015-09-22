@@ -37,18 +37,18 @@ class Perfil(models.Model):
         return int(100 * suma / float(len(valores)))
 
     @property
-    def nivel(self):
-        if not hasattr(self, '_nivel'):
-            self._nivel = Nivel.objects.filter(horas__lte=self.horas_acumuladas).last()
+    def nivel_actual(self):
+        if not hasattr(self, '_nivel_actual'):
+            self._nivel_actual = Nivel.objects.filter(horas__lte=self.horas_acumuladas).last()
 
-        return self._nivel
+        return self._nivel_actual
 
     @property 
-    def siguiente_nivel(self):
-        if not hasattr(self, '_siguiente_nivel'):
-            self._siguiente_nivel = Nivel.objects.filter(horas__gt=self.horas_acumuladas).first()
+    def nivel_siguiente(self):
+        if not hasattr(self, '_nivel_siguiente'):
+            self._nivel_siguiente = Nivel.objects.filter(horas__gt=self.horas_acumuladas).first()
 
-        return self._siguiente_nivel
+        return self._nivel_siguiente
 
     @property
     def horas_acumuladas(self):
@@ -56,14 +56,6 @@ class Perfil(models.Model):
             self._horas_acumuladas = sum([evento.duracion() for evento in self.usuario.eventos.all()])
         
         return self._horas_acumuladas
-
-    @property
-    def horas_para_nivelar(self):
-        if not hasattr(self, '_horas_para_nivelar'):
-            siguiente_nivel = Nivel.objects.filter(horas__gt=self.horas_acumuladas).first()
-            self._horas_para_nivelar = siguiente_nivel.horas - self.horas_acumuladas if siguiente_nivel else 0
-
-        return self._horas_para_nivelar
 
     def lista_habilidades(self):
         return [h.as_dict() for h in self.usuario.habilidades.all()]
@@ -95,6 +87,9 @@ class Perfil(models.Model):
                 'telefono': self.telefono,
                 'bio': self.bio,
                 'privacidad': self.usuario.privacidad.as_dict(),
+                'nivel_actual': self.nivel_actual.as_dict() if self.nivel_actual is not None else None,
+                'nivel_siguiente': self.nivel_siguiente.as_dict() if self.nivel_siguiente is not None else None,
+                'horas_acumuladas': self.horas_acumuladas
             })
 
             if self.imagen:
@@ -185,6 +180,13 @@ class Nivel(models.Model):
     horas = models.PositiveSmallIntegerField(unique=True)
     posicion = models.PositiveSmallIntegerField(editable=False, default=0)
 
+    def as_dict(self):
+        return {
+            'id': self.id,
+            'titulo': self.titulo,
+            'horas': self.horas,
+            'posicion': self.posicion
+        }
 
     def save(self, *args, **kwargs):
         scoot = kwargs.pop('scoot', True)
