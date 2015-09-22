@@ -45,6 +45,7 @@ class Institucion(models.Model):
 
     class Meta:
         verbose_name_plural = 'instituciones'
+        ordering = ('nombre',)
 
 
 class Necesidad(models.Model):

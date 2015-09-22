@@ -265,4 +265,16 @@ def voluntarios(request, *args, **kwargs):
         else:
             return JsonResponseBadRequest(f.errors)
 
-    # voluntarios = User.objects.exclude(afiliacion=None)
+    # voluntarios = User.objects.exclude(afiliacion=None)\
+
+
+@login_required_401
+@require_http_methods(['GET'])
+@csrf_exempt
+def eventos(request, username, *args, **kwargs):
+    perfil = Perfil.objects.filter(usuario__username__iexact=username).first()
+
+    if perfil is None:
+        return JsonResponseNotFound({'message': 'Usuario no existe!'})
+    
+    return MyJsonResponse([e.as_dict(preview=True, viewer=perfil.usuario) for e in perfil.usuario.participaciones.all()], safe=False)

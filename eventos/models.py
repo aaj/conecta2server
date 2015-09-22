@@ -133,12 +133,12 @@ class Logro(models.Model):
             'evento': {
                 'id': self.evento.id,
                 'nombre': self.evento.nombre,
-                'imagen': image_to_dataURI(self.evento.imagen['small']),
+                'imagen': image_to_dataURI(self.evento.imagen['medium']),
                 'inicio': self.evento.inicio.isoformat(),
                 'institucion': {
                     'id': self.evento.institucion.id,
                     'nombre': self.evento.institucion.nombre,
-                    'logo': image_to_dataURI(self.evento.institucion.logo['small'])
+                    'logo': image_to_dataURI(self.evento.institucion.logo['medium'])
                 }
             }
         }
@@ -160,7 +160,7 @@ class Logro(models.Model):
             post_data_dict = {
                 'user_ids': user_ids,
                 'notification': {
-                    'alert': 'Has obtenido el logro "%s"!' % (self.evento.logro.nombre),
+                    'alert': 'Has obtenido el logro "%s".' % (self.evento.logro.nombre),
                     "android": {
                         "collapseKey": "logro",
                         "delayWhileIdle": True,
@@ -199,7 +199,7 @@ class Participacion(models.Model):
                     post_data_dict = {
                         'user_ids': [str(self.usuario.id)],
                         'notification': {
-                            'alert': 'Has obtenido el logro "%s"!' % (self.evento.logro.nombre),
+                            'alert': 'Has obtenido el logro "%s".' % (self.evento.logro.nombre),
                             "android":{
                                 "collapseKey": "logro",
                                 "delayWhileIdle": True,
@@ -211,7 +211,7 @@ class Participacion(models.Model):
                         }
                     }
 
-                    send_push(user=self.usuario, post_data_dict=post_data_dict)
+                    send_push(post_data_dict=post_data_dict)
             else: # ESTO NO VA! SOLO ES PARA DESARROLLO! LOS LOGROS NO SE LE QUITAN AL USUARIO, BAJO NINGUNA CIRCUNSTANCIA
                 self.usuario.logros.remove(self.evento.logro)
         except Logro.DoesNotExist:
