@@ -135,12 +135,20 @@ def perfil(request, username, *args, **kwargs):
             user_form = UserForm(request.POST, instance=request.user)
 
             if perfil_form.is_valid() & user_form.is_valid():
+                print("perfil/save query dict:")
+                print(request.POST)
+                print("perfil/save form data:")
+                print(perfil_form.cleaned_data)
+                
                 perfil_form.save()
                 user_form.save()
+
+                #print(perfil_form.cleaned_data['fecha_nacimiento'].tzinfo)
+
                 return JsonResponse({
                     'user': request.user.pk, 
                     'token': token_generator.make_token(request.user), 
-                    'perfil': request.user.perfil.as_dict()
+                    'perfil': request.user.perfil.as_dict(viewer=request.user)
                 })   
             else:
                 errores = dict()
@@ -254,7 +262,6 @@ def voluntarios(request, *args, **kwargs):
         offset = f.cleaned_data['offset']
 
         voluntarios = User.objects.filter(groups__name='UF').exclude(groups__name__in=['SA', 'INST']).all()[offset:limit + offset]
-        print(voluntarios)
         if request.platform == 'web':
             return HttpResponse("OK! Lista de voluntarios")
         else:
