@@ -54,10 +54,7 @@ class Perfil(models.Model):
     @property
     def horas_acumuladas(self):
         if not hasattr(self, '_horas_acumuladas'):
-            self._horas_acumuladas = float(sum([evento.duracion() for evento in self.usuario.eventos.all()]))
-        
-        print(self._horas_acumuladas)
-        print(type(self._horas_acumuladas))
+            self._horas_acumuladas = float(sum([evento.duracion() for evento in self.usuario.eventos.filter(participacion__verificada=True).all()]))
 
         return self._horas_acumuladas
 
@@ -74,7 +71,7 @@ class Perfil(models.Model):
             'nivel_siguiente': {
                 'horas': '%sh' % str(self.nivel_siguiente.horas) if self.nivel_siguiente is not None else None
             },
-            'progreso': self.horas_acumuladas / float(self.nivel_siguiente.horas) if self.nivel_siguiente is not None else float(1)
+            'progreso': ((self.horas_acumuladas - float(self.nivel_actual.horas)) / (float(self.nivel_siguiente.horas) - float(self.nivel_actual.horas))) if self.nivel_siguiente is not None else float(1)
         }
 
     def as_dict(self, preview=False, viewer=None):
