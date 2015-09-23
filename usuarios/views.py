@@ -277,4 +277,4 @@ def eventos(request, username, *args, **kwargs):
     if perfil is None:
         return JsonResponseNotFound({'message': 'Usuario no existe!'})
     
-    return MyJsonResponse([e.as_dict(preview=True, viewer=perfil.usuario) for e in perfil.usuario.participaciones.all()], safe=False)
+    return MyJsonResponse([e.as_dict(preview=True, viewer=perfil.usuario) for e in perfil.usuario.eventos.all()], safe=False)

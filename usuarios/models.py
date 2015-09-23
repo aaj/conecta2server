@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.validators import MinValueValidator
 from django.contrib.contenttypes.fields import GenericRelation
 
 from conecta2.utils import image_to_dataURI
@@ -53,12 +54,28 @@ class Perfil(models.Model):
     @property
     def horas_acumuladas(self):
         if not hasattr(self, '_horas_acumuladas'):
-            self._horas_acumuladas = sum([evento.duracion() for evento in self.usuario.eventos.all()])
+            self._horas_acumuladas = float(sum([evento.duracion() for evento in self.usuario.eventos.all()]))
         
+        print(self._horas_acumuladas)
+        print(type(self._horas_acumuladas))
+
         return self._horas_acumuladas
 
     def lista_habilidades(self):
         return [h.as_dict() for h in self.usuario.habilidades.all()]
+
+    def nivel_data(self):
+        return {
+            'horas_acumuladas': '%sh' % str(self.horas_acumuladas)[0:str(self.horas_acumuladas).index('.') + 2],
+            'nivel_actual': {
+                'titulo': self.nivel_actual.titulo,
+                'horas': '%sh' % str(self.nivel_actual.horas)
+            },
+            'nivel_siguiente': {
+                'horas': '%sh' % str(self.nivel_siguiente.horas) if self.nivel_siguiente is not None else None
+            },
+            'progreso': self.horas_acumuladas / float(self.nivel_siguiente.horas) if self.nivel_siguiente is not None else float(1)
+        }
 
     def as_dict(self, preview=False, viewer=None):
         res = {
@@ -87,9 +104,7 @@ class Perfil(models.Model):
                 'telefono': self.telefono,
                 'bio': self.bio,
                 'privacidad': self.usuario.privacidad.as_dict(),
-                'nivel_actual': self.nivel_actual.as_dict() if self.nivel_actual is not None else None,
-                'nivel_siguiente': self.nivel_siguiente.as_dict() if self.nivel_siguiente is not None else None,
-                'horas_acumuladas': self.horas_acumuladas
+                'nivel_data': self.nivel_data()
             })
 
             if self.imagen:
@@ -177,7 +192,7 @@ class Habilidad(models.Model):
 
 class Nivel(models.Model):
     titulo = models.CharField(max_length=30)
-    horas = models.PositiveSmallIntegerField(unique=True)
+    horas = models.DecimalField(unique=True, max_digits=5, decimal_places=1, validators=[MinValueValidator(0)])
     posicion = models.PositiveSmallIntegerField(editable=False, default=0)
 
     def as_dict(self):
@@ -198,7 +213,7 @@ class Nivel(models.Model):
                 nivel.save(scoot=False)
 
     def __unicode__(self):
-        return '%d) %s - %d horas' % (self.posicion, self.titulo, self.horas)
+        return '%d) %s - %.1f horas' % (self.posicion, self.titulo, self.horas)
 
     class Meta:
         verbose_name_plural = 'niveles'

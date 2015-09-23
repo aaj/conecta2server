@@ -35,7 +35,9 @@ class Evento(models.Model):
     def duracion(self):
         #float, en horas
         segundos = (self.fin - self.inicio).total_seconds()
-        horas = segundos / 3600
+        horas = segundos / float(3600)
+        print(horas)
+        print(type(horas))
         return horas
 
     def participacion(self, usuario=None):
