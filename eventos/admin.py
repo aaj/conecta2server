@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+from conecta2.utils import send_push_logro
 from .models import *
 
 class LogroInline(admin.TabularInline):
@@ -8,10 +10,15 @@ class LogroInline(admin.TabularInline):
     def save_related(self, request, form, formsets, change):
         super(LogroInline, self).save_related(request, form, formsets, change)
 
+        usuarios = lists()
+
         for usuario in form.instance.evento.participantes.filter(participacion__verificada=True).all():
             if not usuario.logros.filter(id=form.instance.id).exists():
-                print("(admin)Asignando logro! aqui hay que mandar un push!")
                 form.instance.usuarios.add(usuario)
+                usuarios.append(usuario)
+
+        if len(usuarios) > 0:
+            send_push_logro(form.instance, usuarios)
 
 
 class RecuerdoInline(admin.TabularInline):

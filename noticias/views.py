@@ -10,11 +10,28 @@ from usuarios.decorators import login_required_401
 from votos.utils import votar
 
 def noticias(request, *args, **kwargs):
-    raise NotImplementedError()
+    try:
+        limit = int(request.GET.get('limit'))
+    except:
+        limit = 5
+
+    try:
+        offset = int(request.GET.get('offset'))
+    except:
+        offset = 0
+
+    noticias = Noticia.objects.all()[offset:limit+offset]
+
+    return MyJsonResponse([n.as_dict(preview=True, viewer=request.user) for n in noticias], safe=False)
 
 
-def noticia(request, *args, **kwargs):
-    raise NotImplementedError()
+def noticia(request, id_noticia, *args, **kwargs):
+    noticia = Noticia.objects.filter(id=id_noticia).first()
+
+    if noticia is None:
+        return JsonResponseNotFound({'message': 'Noticia no existe!'})
+
+    return MyJsonResponse(noticia.as_dict(preview=False, viewer=request.user))
 
 
 @login_required_401

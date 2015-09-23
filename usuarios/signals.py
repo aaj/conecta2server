@@ -6,12 +6,11 @@ from .models import Perfil
 
 @receiver(post_save, sender=User)
 def usuario_post_save(sender, **kwargs):
-    if kwargs['created']:
-        usuario = kwargs['instance']
+    usuario = kwargs['instance']
 
-        if not hasattr(usuario, 'perfil') or not usuario.perfil:
-            perfil = Perfil(usuario=usuario)
-            perfil.save()
+    if not hasattr(usuario, 'perfil') or not usuario.perfil:
+        perfil = Perfil(usuario=usuario)
+        perfil.save()
 
-        uf_group = Group.objects.get(name='UF')
-        usuario.groups.add(uf_group)
+    uf_group = Group.objects.get(name='UF')
+    usuario.groups.add(uf_group)

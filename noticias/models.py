@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 
+from conecta2.utils import image_to_dataURI
+
 from easy_thumbnails.fields import ThumbnailerImageField
 
 # Create your models here.
@@ -20,7 +22,34 @@ class Noticia(models.Model):
         if hasattr(self.creador, 'afiliacion'):
             return self.creador.afiliacion.institucion.nombre
         else:
-            return 'GENERAL'
+            return 'Me Apunto'
+
+    def as_dict(self, preview=False, viewer=None):
+        print('noticia as dict')
+        print('preview =')
+        print(preview)
+        print(viewer)
+
+        res = {
+            'id': self.id,
+            'titulo': self.titulo,
+            'imagen': image_to_dataURI(self.imagen['medium']),
+            'publicada': self.publicada.isoformat(),
+            'institucion': self.institucion(),
+        }
+
+        if not preview:
+            res.update({
+                'institucion': self.creador.afiliacion.institucion.as_dict(preview=True, viewer=viewer) if hasattr(self.creador, 'afiliacion') else 'Me Apunto',
+                'descripcion': self.descripcion,
+                'imagen': image_to_dataURI(self.imagen['large']),
+                'votos': self.votos.count(),
+                'vistas': self.vistas
+            })
+            
+        res['me_llega'] = self.votos.filter(usuario=viewer).exists()
+
+        return res
 
     def __unicode__(self):
         return '%s' % self.titulo

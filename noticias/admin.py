@@ -3,42 +3,28 @@ from django.contrib import admin
 from .models import *
 
 class InstitucionFilter(admin.SimpleListFilter):
-    # Human-readable title which will be displayed in the
-    # right admin sidebar just above the filter options.
     title = 'institucion'
-
-    # Parameter for the filter that will be used in the URL query.
     parameter_name = 'institucion'
 
+    def list_uniquifier(self, seq):
+        seen = set()
+        seen_add = seen.add
+        return [ x for x in seq if not (x in seen or seen_add(x))]
+
     def lookups(self, request, model_admin):
-        """
-        Returns a list of tuples. The first element in each
-        tuple is the coded value for the option that will
-        appear in the URL query. The second element is the
-        human-readable name for the option that will appear
-        in the right sidebar.
-        """
-        ids_instituciones = list(
-            Noticia.objects.exclude(creador__afiliacion=None).values_list(
+        ids_instituciones = self.list_uniquifier(list(
+            Noticia.objects.exclude(creador__afiliacion=None).order_by(
+                '-creador__afiliacion__institucion'
+            ).values_list(
                 'creador__afiliacion__institucion__id',
                 'creador__afiliacion__institucion__nombre'
-            ).order_by(
-                '-creador__afiliacion__institucion'
-            ).distinct(
-                'creador__afiliacion__institucion'
             )
-        )
+        ))
 
         ids_instituciones.insert(0, ('GENERAL', 'GENERAL'))
         return ids_instituciones
 
     def queryset(self, request, queryset):
-        """
-        Returns the filtered queryset based on the value
-        provided in the query string and retrievable via
-        `self.value()`.
-        """
-
         if self.value() is None:
             return queryset.all()
         elif self.value() == 'GENERAL':

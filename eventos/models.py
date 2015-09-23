@@ -7,8 +7,9 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.auth.models import User
 
-from conecta2.utils import image_to_dataURI, send_push
+from conecta2.utils import image_to_dataURI, send_push_logro, send_push_evento
 
 from geoposition.fields import GeopositionField
 from easy_thumbnails.fields import ThumbnailerImageField
@@ -106,6 +107,9 @@ class Evento(models.Model):
 
             self.imagen_qr = InMemoryUploadedFile(djimg, None, '%s.png' % self.codigo_qr, 'image/png', djimg.len, None)
 
+        if self.id is None:
+            send_push_evento(self, User.objects.all())
+
         super(Evento, self).save(*args, **kwargs)
 
 
@@ -149,32 +153,15 @@ class Logro(models.Model):
         # OJO: Esto no funciona en el admin de django. Por un problema raro.
         # Tuve que duplicar este codigo en el LogroInline en admin.py, para que
         # funcione aya.
-        user_ids = []
+        usuarios = list()
 
         for usuario in self.evento.participantes.filter(participacion__verificada=True).all():
             if not usuario.logros.filter(id=self.id).exists():
                 usuario.logros.add(self)
-                user_ids.append(str(usuario.id))
+                usuarios.append(usuario)
 
-        if len(user_ids) > 0:
-            post_data_dict = {
-                'user_ids': user_ids,
-                'notification': {
-                    'alert': 'Has obtenido el logro "%s".' % (self.evento.logro.nombre),
-                    "android": {
-                        "collapseKey": "logro",
-                        "delayWhileIdle": True,
-                        "timeToLive": 300,
-                        "payload": {
-                            "title":"Mea Punto!"
-                        }
-                    }
-                }
-            }
-
-            print("Sending push to:")
-            print(user_ids)
-            send_push(post_data_dict=post_data_dict)
+        if len(usuarios) > 0:
+            send_push_logro(self, usuarios)
 
     def __unicode__(self):
         return '%s' % self.nombre
@@ -195,23 +182,8 @@ class Participacion(models.Model):
             if self.verificada:
                 if not self.usuario.logros.filter(id=self.evento.logro.id).exists():
                     self.usuario.logros.add(self.evento.logro)
-                    
-                    post_data_dict = {
-                        'user_ids': [str(self.usuario.id)],
-                        'notification': {
-                            'alert': 'Has obtenido el logro "%s".' % (self.evento.logro.nombre),
-                            "android":{
-                                "collapseKey": "logro",
-                                "delayWhileIdle": True,
-                                "timeToLive": 300,
-                                "payload": {
-                                    "title":"Mea Punto!"
-                                }
-                            }
-                        }
-                    }
+                    send_push_logro(self.evento.logro, self.usuario)
 
-                    send_push(post_data_dict=post_data_dict)
             else: # ESTO NO VA! SOLO ES PARA DESARROLLO! LOS LOGROS NO SE LE QUITAN AL USUARIO, BAJO NINGUNA CIRCUNSTANCIA
                 self.usuario.logros.remove(self.evento.logro)
         except Logro.DoesNotExist:

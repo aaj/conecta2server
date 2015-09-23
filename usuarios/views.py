@@ -135,10 +135,10 @@ def perfil(request, username, *args, **kwargs):
             user_form = UserForm(request.POST, instance=request.user)
 
             if perfil_form.is_valid() & user_form.is_valid():
-                print("perfil/save query dict:")
-                print(request.POST)
-                print("perfil/save form data:")
-                print(perfil_form.cleaned_data)
+                # print("perfil/save query dict:")
+                # print(request.POST)
+                # print("perfil/save form data:")
+                # print(perfil_form.cleaned_data)
                 
                 perfil_form.save()
                 user_form.save()
