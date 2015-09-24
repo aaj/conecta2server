@@ -57,13 +57,28 @@ class MyUserChangeForm(UserChangeForm):
     email = forms.EmailField(label=_("Email"), max_length=254)
 
     def clean_email(self, *args, **kwargs):
-        print self.cleaned_data
-        print args
+        data = self.cleaned_data['email']
+        if User.objects.filter(email=data).exclude(id=self.instance.id).exists():
+            raise forms.ValidationError("Ya existe un usuario con ese correo electronico.")
 
-        print kwargs
+        return data
+
+
+class RegisterForm(forms.Form):
+    username = forms.CharField()
+    email = forms.EmailField()
+    password = forms.CharField()
+
+    def clean_username(self):
+        data = self.cleaned_data['username']
+        if User.objects.filter(username=data).exists():
+            raise forms.ValidationError("Ya existe un usuario con ese nombre de usuario.")
+
+        return data
+
+    def clean_email(self):
         data = self.cleaned_data['email']
         if User.objects.filter(email=data).exists():
             raise forms.ValidationError("Ya existe un usuario con ese correo electronico.")
 
         return data
-

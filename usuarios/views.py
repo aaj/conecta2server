@@ -18,6 +18,7 @@ from .forms import *
 
 from conecta2.http import *
 from conecta2.decorators import parse_b64_files_in_body
+from conecta2.utils import enviar_correo_verificacion
 
 from votos.utils import votar
 
@@ -174,7 +175,6 @@ def privacidad(request, campo, *args, **kwargs):
 
 @login_required_401
 @require_http_methods(['GET'])
-@csrf_exempt
 def logros(request, username, *args, **kwargs):
     usuario = User.objects.filter(username__iexact=username).first()
 
@@ -277,7 +277,6 @@ def voluntarios(request, *args, **kwargs):
 
 @login_required_401
 @require_http_methods(['GET'])
-@csrf_exempt
 def eventos(request, username, *args, **kwargs):
     perfil = Perfil.objects.filter(usuario__username__iexact=username).first()
 
@@ -285,3 +284,61 @@ def eventos(request, username, *args, **kwargs):
         return JsonResponseNotFound({'message': 'Usuario no existe!'})
     
     return MyJsonResponse([e.as_dict(preview=True, viewer=perfil.usuario) for e in perfil.usuario.eventos.all()], safe=False)
+
+
+@require_http_methods(['POST'])
+@csrf_exempt
+def register(request, *args, **kwargs):
+    f = RegisterForm(request.POST)
+    if f.is_valid():
+        username = f.cleaned_data['username']
+        email = f.cleaned_data['email']
+        password = f.cleaned_data['password']
+
+        nuevo_usuario = User.objects.create_user(username, email, password)
+
+        try:
+            verificacion = VerificacionCorreo.objects.get(usuario=nuevo_usuario)
+        except:
+            verificacion = VerificacionCorreo(usuario=nuevo_usuario)
+            verificacion.save()
+
+        enviar_correo_verificacion(request, verificacion)
+
+        return MyJsonResponse()
+    else:
+        return JsonResponseBadRequest(f.errors)
+
+
+@require_http_methods(['GET'])
+def verificar_correo(request, codigo, *args, **kwargs):
+    try:
+        verificacion = VerificacionCorreo.objects.get(codigo=codigo)
+        verificacion.usuario.perfil.email_verificado = True
+        verificacion.usuario.perfil.save()
+        return render(request, 'usuarios/verificar_correo.html', {'success': True})
+    except Exception as ex:
+        print("Error verificando correo:")
+        print(ex)
+        return render(request, 'usuarios/verificar_correo.html', {'success': False})
+
+
+@require_http_methods(['POST'])
+@csrf_exempt
+def enviar_verificacion(request, *args, **kwargs):
+    email = request.POST.get('email', None)
+
+    if not email or not User.objects.filter(email=email).exists():
+        return JsonResponseNotFound({'message': 'No existe un usuario con ese correo electronico.'})
+    else:
+        usuario = User.objects.get(email=email)
+
+        try:
+            verificacion = VerificacionCorreo.objects.get(usuario=usuario)
+        except:
+            verificacion = VerificacionCorreo(usuario=usuario)
+            verificacion.save()
+
+        enviar_correo_verificacion(request, verificacion)
+
+        return MyJsonResponse()

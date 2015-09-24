@@ -180,7 +180,11 @@ TOKEN_CHECK_ACTIVE_USER = True
 
 DATETIME_INPUT_FORMATS = ('%Y-%m-%dT%H:%M:%S%z',)
 
-# AUTH_USER_MODEL = 'usuarios.ProxyUser'
+EMAIL_HOST = 'smtp.webfaction.com'
+EMAIL_HOST_USER = 'info_meapunto'
+EMAIL_HOST_PASSWORD = '1nf0_meapunto'
+DEFAULT_FROM_EMAIL = 'Info MeApunto <info@meapuntohonduras.com>'
+SERVER_EMAIL = 'info@meapuntohonduras.com'
 
 try:
     from local_settings import *

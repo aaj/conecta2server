@@ -155,6 +155,7 @@ class MyUserAdmin(UserAdmin):
 # admin.site.register(Habilidad)
 
 admin.site.register(Nivel)
+admin.site.register(VerificacionCorreo)
 
 admin.site.unregister(User)
 admin.site.register(User, MyUserAdmin)

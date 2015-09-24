@@ -5,8 +5,10 @@ import urllib2
 
 from base64 import b64encode, b64decode, encodestring
 
+from django.core.mail import send_mail
 from django.db.models.query import QuerySet
 from django.apps import apps
+from django.conf import settings
 
 def image_to_dataURI(imageField):
     try:
@@ -171,3 +173,17 @@ def send_push_logro(logro, users):
             }
         }
     })
+
+
+def enviar_correo(to, subject, message):
+    try:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [to])
+    except Exception as ex:
+        print("Error al mandar correo a %s:" % to)
+        print(ex)
+
+
+def enviar_correo_verificacion(request, verificacion):
+    url_verificacion = request.build_absolute_uri('/usuarios/verificar/%s' % verificacion.codigo)
+    mensaje = """Gracias por registrarte a MeApunto!\n\nPara poder iniciar sesion, primero debes verificar tu cuenta de correo electronico haciendo click en el siguiente enlace:\n%s""" % url_verificacion
+    enviar_correo(verificacion.usuario.email, 'Verificacion De Correo', mensaje)

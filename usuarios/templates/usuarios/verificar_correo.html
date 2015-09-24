@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verificacion De Correo Electronico</title>
+</head>
+    <body>
+        {% if success %}
+            <h3>Su cuenta de correo ha sido verificada!</h3>
+            <h5>Ya puedes iniciar session desde la app, usando tus credenciales.</h5>
+        {% else %}
+            <h3>No se pudo verificar tu correo electronico!</h3>
+            <h5>Intenta enviar el correo de verificacion de nuevo.</h5>
+        {% endif %}
+    </body>
+</html>

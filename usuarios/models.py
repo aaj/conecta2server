@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator
@@ -227,3 +229,17 @@ class Nivel(models.Model):
     class Meta:
         verbose_name_plural = 'niveles'
         ordering = ['horas']
+
+
+class VerificacionCorreo(models.Model):
+    usuario = models.OneToOneField(settings.AUTH_USER_MODEL)
+    codigo = models.CharField(max_length=100, default=uuid.uuid4)
+
+    def save(self, *args, **kwargs):
+        while VerificacionCorreo.objects.filter(codigo=self.codigo).exclude(id=self.id).exists():
+            self.codigo = uuid.uuid4()
+
+        super(VerificacionCorreo, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.usuario.username
