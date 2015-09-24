@@ -64,7 +64,11 @@ class Afiliacion(models.Model):
     institucion = models.ForeignKey('Institucion', related_name='afiliados')
 
     def __unicode__(self):
-        return '%s - %s' % (self.usuario, self.institucion)
+        full_name = self.usuario.get_full_name()
+        if full_name:
+            return '%s (%s)' % (full_name, self.usuario.username)
+        else:
+            return self.usuario.username
 
     class Meta:
         verbose_name_plural = 'afiliaciones'

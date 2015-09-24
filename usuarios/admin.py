@@ -6,6 +6,9 @@ from django.contrib.auth.models import User
 from .models import *
 from .forms import MyUserCreationForm, MyUserChangeForm
 
+from instituciones.models import Afiliacion
+from instituciones.admin import AfiliacionInline
+
 class PerfilInline(admin.StackedInline):
     model = Perfil
 
@@ -58,7 +61,7 @@ class InstitucionFilter(admin.SimpleListFilter):
 
 class MyUserAdmin(UserAdmin):
     model = ProxyUser
-    inlines = [PerfilInline, PrivacidadInline, HabilidadInline]
+    inlines = [AfiliacionInline, PerfilInline, PrivacidadInline, HabilidadInline]
     
     form = MyUserChangeForm
     add_form = MyUserCreationForm
@@ -142,7 +145,7 @@ class MyUserAdmin(UserAdmin):
             return User.objects.filter(id=request.user.id)
         else:
             #sospecho que esto va a fallar, pero solo va a suceder si crean un usuario UF y le dan acceso al admin via is_staff = True
-            return []
+            return User.objects.none()
 
     def get_list_filter(self, request):
         if request.user.is_superuser or request.user.groups.filter(name='SA').exists():
