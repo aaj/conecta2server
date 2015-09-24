@@ -9,6 +9,9 @@ from conecta2.http import *
 from usuarios.decorators import login_required_401
 from votos.utils import votar
 
+@login_required_401
+@require_http_methods(['GET'])
+@csrf_exempt
 def noticias(request, *args, **kwargs):
     try:
         limit = int(request.GET.get('limit'))
@@ -25,6 +28,9 @@ def noticias(request, *args, **kwargs):
     return MyJsonResponse([n.as_dict(preview=True, viewer=request.user) for n in noticias], safe=False)
 
 
+@login_required_401
+@require_http_methods(['GET'])
+@csrf_exempt
 def noticia(request, id_noticia, *args, **kwargs):
     noticia = Noticia.objects.filter(id=id_noticia).first()
 

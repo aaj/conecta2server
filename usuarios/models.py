@@ -1,11 +1,23 @@
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 
 from conecta2.utils import image_to_dataURI
 from easy_thumbnails.fields import ThumbnailerImageField
 from votos.models import Voto
+
+class ProxyUser(User):
+    class Meta:
+        proxy = True
+
+    def clean(self):
+        print('cleaning')
+        raise ValidationError('ERRORORORRORO')
+        #print('Hola proxy!')
+
 
 class Perfil(models.Model):
     SEXO_CHOICES = (('f', 'Femenino'), ('m', 'Masculino'))

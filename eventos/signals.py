@@ -7,13 +7,11 @@ from .models import Logro
 def logro_asignado(sender, instance, action, **kwargs):
     if action == 'post_add':
         print("LOGRO ASIGNADO, Enviando push...")
-        print(action)
-        print(instance)
 
-        post_data = {
-            "user_ids": [str(instance.id)],
-            "notification": {"alert":"Hello World!"}
-        }
+        # post_data = {
+        #     "user_ids": [str(instance.id)],
+        #     "notification": {"alert":"Hello World!"}
+        # }
 
         # app_id = YOUR_APP_ID
         # private_key = YOUR_PRIVATE_API_KEY

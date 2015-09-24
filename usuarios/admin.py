@@ -3,7 +3,8 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
-from usuarios.models import *
+from .models import *
+from .forms import MyUserCreationForm, MyUserChangeForm
 
 class PerfilInline(admin.StackedInline):
     model = Perfil
@@ -56,8 +57,24 @@ class InstitucionFilter(admin.SimpleListFilter):
 
 
 class MyUserAdmin(UserAdmin):
-    model = User
+    model = ProxyUser
     inlines = [PerfilInline, PrivacidadInline, HabilidadInline]
+    
+    form = MyUserChangeForm
+    add_form = MyUserCreationForm
+
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'email', 'password1', 'password2'),
+        }),
+    )
+
+    def get_inline_instances(self, request, obj=None):
+        if obj is None:
+            return []
+        else:
+            return [inline(self.model, self.admin_site) for inline in self.inlines]
 
     def get_fieldsets(self, request, obj=None):
         if not obj:

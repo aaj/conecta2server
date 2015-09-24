@@ -52,6 +52,7 @@ def b64content_from_dataURI(dataURI):
         return ''
 
 def send_push(data_dict):
+    print("sending push notification request...")
     data_json = json.dumps(data_dict)
     app_id = '5cb9d9e9'
     private_key = '7c697ed2ceaa91cd68d0bfdbe8bcc3f960e090f23eb4d469'
@@ -64,11 +65,12 @@ def send_push(data_dict):
     try:
         resp = urllib2.urlopen(req)
         print(resp.read())
+        print('OK!')
     except urllib2.HTTPError as e:
-        print('Error enviando push: ')
+        print('Error: ')
         print(e)
         print(e.read())
-        print('Datos: ')
+        print('Data: ')
         print(data_json)
 
 
