@@ -48,8 +48,8 @@ class Noticia(models.Model):
         return res
 
     def save(self, *args, **kwargs):
-        nuevo = self.id is None:
-        
+        nuevo = self.id is None
+
         super(Noticia, self).save(*args, **kwargs)
         
         if nuevo:

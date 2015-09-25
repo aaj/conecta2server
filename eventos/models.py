@@ -107,7 +107,7 @@ class Evento(models.Model):
 
             self.imagen_qr = InMemoryUploadedFile(djimg, None, '%s.png' % self.codigo_qr, 'image/png', djimg.len, None)
 
-        nuevo = self.id is None:
+        nuevo = self.id is None
         
         super(Evento, self).save(*args, **kwargs)
 
