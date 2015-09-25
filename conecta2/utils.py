@@ -56,8 +56,8 @@ def b64content_from_dataURI(dataURI):
 def send_push(data_dict):
     print("sending push notification request...")
     data_json = json.dumps(data_dict)
-    app_id = '5cb9d9e9'
-    private_key = '7c697ed2ceaa91cd68d0bfdbe8bcc3f960e090f23eb4d469'
+    app_id = '78040162'
+    private_key = 'e3c3f8f56715c00a7c916d594e34d6d658aae8cb9a415bd2'
     url = 'https://push.ionic.io/api/v1/push'
     req = urllib2.Request(url, data=data_json)
     req.add_header('Content-Type', 'application/json')
