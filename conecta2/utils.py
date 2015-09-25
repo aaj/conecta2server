@@ -118,6 +118,7 @@ def send_push_evento(evento, users):
             'alert': 'La institucion %s ha creado un nuevo evento.' % evento.institucion.nombre,
             'android': {
                 'payload': {
+                    '$state': 'tab.account-notifications',
                     'type': 1,
                     'evento': {
                         'id': evento.id,
@@ -131,6 +132,7 @@ def send_push_evento(evento, users):
             },
             'ios': {
                 'payload': {
+                    '$state': 'tab.account-notifications',
                     'type': 1,
                     'evento': {
                         'id': evento.id,
@@ -155,6 +157,7 @@ def send_push_noticia(noticia, users):
             'alert': 'Se ha publicado una nueva noticia!',
             'android': {
                 'payload': {
+                    '$state': 'tab.account-notifications',
                     'type': 2,
                     'noticia': {
                         'id': noticia.id,
@@ -164,6 +167,7 @@ def send_push_noticia(noticia, users):
             },
             'ios': {
                 'payload': {
+                    '$state': 'tab.account-notifications',
                     'type': 2,
                     'noticia': {
                         'id': noticia.id,
@@ -184,6 +188,7 @@ def send_push_logro(logro, users):
             'alert': 'Has ganado un logro!',
             'android': {
                 'payload': {
+                    '$state': 'tab.account-notifications',
                     'type': 3,
                     'logro': {
                         'id': logro.id,
@@ -193,6 +198,7 @@ def send_push_logro(logro, users):
             },
             'ios': {
                 'payload': {
+                    '$state': 'tab.account-notifications',
                     'type': 3,
                     'logro': {
                         'id': logro.id,
