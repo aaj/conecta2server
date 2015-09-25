@@ -18,10 +18,12 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 
+from inicio.views import inicio
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url('', include('social.apps.django_app.urls', namespace='social')),
+    url(r'$', inicio, name='inicio'),
     url(r'^usuarios', include('usuarios.urls', namespace='usuarios')),
     url(r'^eventos', include('eventos.urls', namespace='eventos')),
     url(r'^noticias', include('noticias.urls', namespace='noticias')),
