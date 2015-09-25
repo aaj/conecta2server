@@ -56,7 +56,7 @@ class MyUserCreationForm(UserCreationForm):
 
     def clean_email(self):
         data = self.cleaned_data['email']
-        if User.objects.filter(email=data).exists():
+        if User.objects.filter(email__iexact=data).exists():
             raise forms.ValidationError("Ya existe un usuario con ese correo electronico.")
 
         return data
@@ -67,14 +67,15 @@ class MyUserChangeForm(UserChangeForm):
 
     def clean_username(self):
         data = self.cleaned_data['username']
-        if User.objects.filter(username__iexact=data).exists():
+        print('guardando %s' % data)
+        if User.objects.filter(username__iexact=data).exclude(id=self.instance.id).exists():
             raise forms.ValidationError("Ya existe un usuario con ese nombre de usuario.")
 
         return data
 
     def clean_email(self, *args, **kwargs):
         data = self.cleaned_data['email']
-        if User.objects.filter(email=data).exclude(id=self.instance.id).exists():
+        if User.objects.filter(email__iexact=data).exclude(id=self.instance.id).exists():
             raise forms.ValidationError("Ya existe un usuario con ese correo electronico.")
 
         return data
