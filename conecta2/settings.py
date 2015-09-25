@@ -24,7 +24,10 @@ SECRET_KEY = '%r$4ot4%pa(e_zum#509hl06h0ykhc+%w0809d&c5$_1t&^%$b'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'meapuntohonduras.com',
+    'www.meapuntohonduras.com'
+]
 
 
 # Application definition
