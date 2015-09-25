@@ -18,6 +18,9 @@ class Institucion(models.Model):
 
     votos = GenericRelation('votos.Voto')
     
+    def necesidades_list(self):
+        return [n.as_dict() for n in self.necesidades.all()]
+
     def as_dict(self, preview=False, viewer=None):
         res = {
             'id': self.id,
@@ -35,7 +38,8 @@ class Institucion(models.Model):
                 'telefono_contacto': self.telefono_contacto,
                 'direccion_contacto': self.direccion_contacto,
                 'correo_contacto': self.correo_contacto,
-                'pagina': self.pagina
+                'pagina': self.pagina,
+                'necesidades': self.necesidades_list()
             })
 
         return res
@@ -51,6 +55,9 @@ class Institucion(models.Model):
 class Necesidad(models.Model):
     institucion = models.ForeignKey('Institucion', related_name='necesidades')
     descripcion = models.CharField(max_length=100)
+
+    def as_dict(self):
+        return {'descripcion': self.descripcion}
 
     def __unicode__(self):
         return '%s - %s' % (self.descripcion, self.institucion.nombre)

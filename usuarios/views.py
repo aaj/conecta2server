@@ -118,29 +118,18 @@ def perfil(request, username, *args, **kwargs):
 
     if usuario is None:
         msg = 'Usuario %s no existe!' % username
-        if request.platform == 'web':
-            raise Http404(msg)
-        else:
-            return JsonResponseNotFound({'message': msg})
+        return JsonResponseNotFound({'message': msg})
 
     perfil_depurado = usuario.perfil.as_dict(preview=False, viewer=request.user)
 
     if request.method == 'GET':
-        if request.platform == 'web':
-            return render(request, 'usuarios/perfil.html', {'perfil': perfil_depurado})
-        else:
-            return MyJsonResponse({'perfil': perfil_depurado})
+        return MyJsonResponse({'perfil': perfil_depurado})
     else:
         if usuario == request.user:
             perfil_form = PerfilForm(request.POST, request.FILES, instance=request.user.perfil)
             user_form = UserForm(request.POST, instance=request.user)
 
-            if perfil_form.is_valid() & user_form.is_valid():
-                # print("perfil/save query dict:")
-                # print(request.POST)
-                # print("perfil/save form data:")
-                # print(perfil_form.cleaned_data)
-                
+            if perfil_form.is_valid() & user_form.is_valid():                
                 perfil_form.save()
                 user_form.save()
 
@@ -260,19 +249,10 @@ def voluntarios(request, *args, **kwargs):
     if f.is_valid():
         limit = f.cleaned_data['limit']
         offset = f.cleaned_data['offset']
-
         voluntarios = User.objects.filter(groups__name='UF').exclude(groups__name__in=['SA', 'INST']).all()[offset:limit + offset]
-        if request.platform == 'web':
-            return HttpResponse("OK! Lista de voluntarios")
-        else:
-            return MyJsonResponse([v.perfil.as_dict(preview=True, viewer=request.user) for v in voluntarios], safe=False)
+        return MyJsonResponse([v.perfil.as_dict(preview=True, viewer=request.user) for v in voluntarios], safe=False)
     else:
-        if request.platform == 'web':
-            return HttpResponse('Errors')
-        else:
-            return JsonResponseBadRequest(f.errors)
-
-    # voluntarios = User.objects.exclude(afiliacion=None)\
+        return JsonResponseBadRequest(f.errors)
 
 
 @login_required_401

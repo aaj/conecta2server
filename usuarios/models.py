@@ -79,8 +79,8 @@ class Perfil(models.Model):
         return {
             'horas_acumuladas': '%sh' % str(self.horas_acumuladas)[0:str(self.horas_acumuladas).index('.') + 2],
             'nivel_actual': {
-                'titulo': self.nivel_actual.titulo,
-                'horas': '%sh' % str(self.nivel_actual.horas)
+                'titulo': self.nivel_actual.titulo if self.nivel_actual else None,
+                'horas': '%sh' % str(self.nivel_actual.horas) if self.nivel_actual else None,
             },
             'nivel_siguiente': {
                 'horas': '%sh' % str(self.nivel_siguiente.horas) if self.nivel_siguiente is not None else None
