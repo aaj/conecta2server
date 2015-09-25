@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import uuid
 
 from django.db import models
@@ -152,7 +154,7 @@ class Perfil(models.Model):
 
 
     def __unicode__(self):
-        return '%s (%d%% complete)' % (self.usuario.get_full_name() or self.usuario, self.porcentaje())
+        return u'%s (%d%% complete)' % (self.usuario.get_full_name() or self.usuario, self.porcentaje())
 
     class Meta:
         verbose_name_plural = 'perfiles'
@@ -178,7 +180,7 @@ class Privacidad(models.Model):
         }
 
     def __unicode__(self):
-        return '%s' % (self.usuario)
+        return u'%s' % (self.usuario)
 
     class Meta:
         verbose_name_plural = 'privacidades'
@@ -192,7 +194,7 @@ class Habilidad(models.Model):
         return {'id': self.id, 'descripcion': self.descripcion}
 
     def __unicode__(self):
-        return '%s' % (self.descripcion)
+        return u'%s' % (self.descripcion)
 
     class Meta:
         order_with_respect_to = 'perfil'
@@ -224,7 +226,7 @@ class Nivel(models.Model):
                 nivel.save(scoot=False)
 
     def __unicode__(self):
-        return '%d) %s - %.1f horas' % (self.posicion, self.titulo, self.horas)
+        return u'%d) %s - %.1f horas' % (self.posicion, self.titulo, self.horas)
 
     class Meta:
         verbose_name_plural = 'niveles'

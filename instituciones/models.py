@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
@@ -60,7 +62,7 @@ class Necesidad(models.Model):
         return {'descripcion': self.descripcion}
 
     def __unicode__(self):
-        return '%s - %s' % (self.descripcion, self.institucion.nombre)
+        return u'%s - %s' % (self.descripcion, self.institucion.nombre)
 
     class Meta:
         verbose_name_plural = 'necesidades'
@@ -73,7 +75,7 @@ class Afiliacion(models.Model):
     def __unicode__(self):
         full_name = self.usuario.get_full_name()
         if full_name:
-            return '%s (%s)' % (full_name, self.usuario.username)
+            return u'%s (%s)' % (full_name, self.usuario.username)
         else:
             return self.usuario.username
 

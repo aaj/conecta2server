@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
@@ -56,7 +58,7 @@ class Noticia(models.Model):
             send_push_noticia(self, User.objects.all())
 
     def __unicode__(self):
-        return '%s' % self.titulo
+        return u'%s' % self.titulo
 
     class Meta:
         ordering = ['-publicada']

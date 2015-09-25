@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import StringIO
 import uuid
 import qrcode
@@ -115,7 +117,7 @@ class Evento(models.Model):
             send_push_evento(self, User.objects.all())
 
     def __unicode__(self):
-        return '%s - %s' % (self.nombre, self.institucion.nombre)
+        return u'%s - %s' % (self.nombre, self.institucion.nombre)
 
     class Meta:
         ordering = ['-inicio']
@@ -165,7 +167,7 @@ class Logro(models.Model):
             send_push_logro(self, usuarios)
 
     def __unicode__(self):
-        return '%s' % self.nombre
+        return u'%s' % self.nombre
 
 
 class Participacion(models.Model):
@@ -191,7 +193,7 @@ class Participacion(models.Model):
             pass #Este evento no tiene logro asignado. Ni modo.
 
     def __unicode__(self):
-        return '%s - %s' % (self.evento.nombre, self.usuario.get_full_name())
+        return u'%s - %s' % (self.evento.nombre, self.usuario.get_full_name())
 
     class Meta:
         verbose_name_plural = 'participaciones'
@@ -209,4 +211,4 @@ class Recuerdo(models.Model):
             return {'id': self.id, 'evento': self.evento.id, 'imagen': image_to_dataURI(self.imagen)}
 
     def __unicode__(self):
-        return '%s (%s)' % (self.evento.nombre, self.imagen.name)
+        return u'%s (%s)' % (self.evento.nombre, self.imagen.name)

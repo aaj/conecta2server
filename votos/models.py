@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -13,7 +15,7 @@ class Voto(models.Model):
     content_object = GenericForeignKey()
 
     def __unicode__(self):
-        return '%s +1 %s' % (self.usuario, self.content_object)
+        return u'%s +1 %s' % (self.usuario, self.content_object)
 
     class Meta:
         unique_together = ('usuario', 'content_type', 'object_id')
