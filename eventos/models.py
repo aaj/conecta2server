@@ -107,11 +107,12 @@ class Evento(models.Model):
 
             self.imagen_qr = InMemoryUploadedFile(djimg, None, '%s.png' % self.codigo_qr, 'image/png', djimg.len, None)
 
-        if self.id is None:
-            send_push_evento(self, User.objects.all())
-
+        nuevo = self.id is None:
+        
         super(Evento, self).save(*args, **kwargs)
 
+        if nuevo:
+            send_push_evento(self, User.objects.all())
 
     def __unicode__(self):
         return '%s - %s' % (self.nombre, self.institucion.nombre)

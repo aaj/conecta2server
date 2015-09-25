@@ -48,10 +48,12 @@ class Noticia(models.Model):
         return res
 
     def save(self, *args, **kwargs):
-        if self.id is None:
-            send_push_noticia(self, User.objects.all())
-
+        nuevo = self.id is None:
+        
         super(Noticia, self).save(*args, **kwargs)
+        
+        if nuevo:
+            send_push_noticia(self, User.objects.all())
 
     def __unicode__(self):
         return '%s' % self.titulo
