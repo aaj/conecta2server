@@ -27,7 +27,7 @@ class Institucion(models.Model):
         res = {
             'id': self.id,
             'nombre': self.nombre,
-            'logo': image_to_dataURI(self.logo['small']),
+            'logo': image_to_dataURI(self.logo['medium']),
             'votos': self.votos.count(),
             'eventos': self.eventos.count(),
             'me_llega': self.votos.filter(usuario=viewer).exists()
@@ -36,7 +36,7 @@ class Institucion(models.Model):
         if not preview:
             res.update({
                 'descripcion': self.descripcion,
-                'logo': image_to_dataURI(self.logo['medium']),
+                'logo': image_to_dataURI(self.logo['large']),
                 'telefono_contacto': self.telefono_contacto,
                 'direccion_contacto': self.direccion_contacto,
                 'correo_contacto': self.correo_contacto,
