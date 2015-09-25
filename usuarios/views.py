@@ -1,10 +1,10 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 import json
 
 from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import render
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
@@ -18,7 +18,7 @@ from .forms import *
 
 from conecta2.http import *
 from conecta2.decorators import parse_b64_files_in_body
-from conecta2.utils import enviar_correo_verificacion
+from conecta2.utils import enviar_correo_bienvenida, enviar_correo_verificacion
 
 from votos.utils import votar
 
@@ -41,6 +41,8 @@ def social_auth(request, backend, *args, **kwargs):
         try:
             user = request.backend.do_auth(token)
         except Exception as ex:
+            print("do_auth exception:")
+            raise ex
             print(ex)
             return JsonResponseUnauthorized({'message': 'Invalid or missing access token.'})
         else:
@@ -72,15 +74,19 @@ def auth(request, *args, **kwargs):
         email_validator = EmailValidator()
         email_validator(username)
         
-        usuario = User.objects.filter(email=username).first()
+        usuario = User.objects.filter(email__iexact=username).first()
 
         if usuario is not None:
             username = usuario.username
         else:
             username = ''
     except ValidationError:
-        # no es un email. talvez es un username normal
-        pass
+        usuario = User.objects.filter(username__iexact=username).first()
+
+        if usuario is not None:
+            username = usuario.username
+        else:
+            username = ''
 
     user = authenticate(username=username, password=password)
 
@@ -283,7 +289,7 @@ def register(request, *args, **kwargs):
             verificacion = VerificacionCorreo(usuario=nuevo_usuario)
             verificacion.save()
 
-        enviar_correo_verificacion(request, verificacion)
+        enviar_correo_bienvenida(request, verificacion, password)
 
         return MyJsonResponse()
     else:
@@ -322,3 +328,23 @@ def enviar_verificacion(request, *args, **kwargs):
         enviar_correo_verificacion(request, verificacion)
 
         return MyJsonResponse()
+
+
+@login_required_401
+@require_http_methods(['POST'])
+@csrf_exempt
+def cambiar_clave(request, *args, **kwargs):
+    f = CambiarClaveForm(request.POST)
+
+    if f.is_valid():
+        old = f.cleaned_data['old']
+        if authenticate(username=request.user.username, password=old):
+            new = f.cleaned_data['new1']
+            request.user.set_password(new)
+            request.user.save()
+            update_session_auth_hash(request, request.user)
+            return MyJsonResponse()
+        else:
+            return JsonResponseBadRequest({'message': u'La contraseña es invalida.'})
+    else:
+        return JsonResponseBadRequest(f.errors)

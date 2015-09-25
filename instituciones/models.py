@@ -9,7 +9,7 @@ from easy_thumbnails.fields import ThumbnailerImageField
 
 class Institucion(models.Model):
     nombre = models.CharField(max_length=100)
-    descripcion = models.CharField(max_length=500)
+    descripcion = models.TextField()
     logo = ThumbnailerImageField(upload_to='imagenes/logos')
     telefono_contacto = models.CharField(max_length=12, blank=True)
     direccion_contacto = models.CharField(max_length=100, blank=True)

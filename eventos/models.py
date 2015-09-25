@@ -18,7 +18,7 @@ from easy_thumbnails.fields import ThumbnailerImageField
 
 class Evento(models.Model):
     nombre = models.CharField(max_length=100)
-    descripcion = models.CharField(max_length=500)
+    descripcion = models.TextField()
     lugar = GeopositionField()
     direccion = models.CharField(max_length=100)
     institucion = models.ForeignKey('instituciones.Institucion', related_name='eventos')

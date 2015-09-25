@@ -12,8 +12,8 @@ def login_required_401(f):
         if request.user.is_authenticated():
             return f(request, *args, **kwargs)
         else:
-            user = request.ANY.get('user', '')
-            token = request.ANY.get('token', '')
+            user = request.ANY.get('user', '0')
+            token = request.ANY.get('token', '0')
 
             authed_user = authenticate(pk=user, token=token)
 

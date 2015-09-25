@@ -18,5 +18,6 @@ urlpatterns = [
     url(r'^/privacidad/(?P<campo>[^/]+)$', views.privacidad, name='privacidad'),
     url(r'^/voluntarios$', views.voluntarios, name='voluntarios'),
     url(r'^/verificar/(?P<codigo>.+)$', views.verificar_correo, name='verificar_correo'),
-    url(r'^/verificacion/enviar$', views.enviar_verificacion, name='enviar_verificacion')
+    url(r'^/verificacion/enviar$', views.enviar_verificacion, name='enviar_verificacion'),
+    url(r'^/cambiar-clave$', views.cambiar_clave, name='cambiar_clave')
 ]

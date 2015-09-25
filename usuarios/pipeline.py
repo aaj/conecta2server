@@ -1,11 +1,16 @@
 from requests import request, HTTPError
 
 from django.core.files.base import ContentFile
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.models import User
 
-from usuarios.models import Perfil
+from conecta2.utils import enviar_correo_bienvenida
+from usuarios.models import Perfil, VerificacionCorreo
 
 def user_details(strategy, details, response, user=None, *args, **kwargs):
     """Update user details using data from provider."""
+    print(args)
+    print(kwargs)
     if user:
         changed = False  # flag to track changes
         protected = ('username', 'id', 'pk', 'email') + \
@@ -16,7 +21,6 @@ def user_details(strategy, details, response, user=None, *args, **kwargs):
         # example username and id fields. It's also possible to disable update
         # on fields defined in SOCIAL_AUTH_PROTECTED_FIELDS.
         for name, value in details.items():
-            #print (name, value)
             if value and hasattr(user, name):
                 # Check https://github.com/omab/python-social-auth/issues/671
                 current_value = getattr(user, name, None)
@@ -53,3 +57,20 @@ def user_details(strategy, details, response, user=None, *args, **kwargs):
             perfil.imagen.save('{0}_social.jpg'.format(user.username), ContentFile(r.content))
 
         perfil.save()
+
+        if kwargs['is_new']:
+            new_password = User.objects.make_random_password(length=5, allowed_chars='abcdefghjkmnpqrstuvwxyz')
+            user.set_password(new_password)
+            user.save()
+            # update_session_auth_hash(kwargs['request'], user)
+
+            try:
+                verificacion = VerificacionCorreo.objects.get(usuario=user)
+            except:
+                verificacion = VerificacionCorreo(usuario=user)
+                verificacion.save()
+
+            enviar_correo_bienvenida(strategy, verificacion, new_password)
+            print("email sent?")
+        else:
+            print("is not new user")

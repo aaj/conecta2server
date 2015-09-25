@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.apps import apps
 from django import forms
 from django.conf import settings
@@ -45,6 +47,13 @@ class VoluntariosForm(forms.Form):
 class MyUserCreationForm(UserCreationForm):
     email = forms.EmailField(label=_("Email"), max_length=254)
 
+    def clean_username(self):
+        data = self.cleaned_data['username']
+        if User.objects.filter(username__iexact=data).exists():
+            raise forms.ValidationError("Ya existe un usuario con ese nombre de usuario.")
+
+        return data
+
     def clean_email(self):
         data = self.cleaned_data['email']
         if User.objects.filter(email=data).exists():
@@ -55,6 +64,13 @@ class MyUserCreationForm(UserCreationForm):
 
 class MyUserChangeForm(UserChangeForm):
     email = forms.EmailField(label=_("Email"), max_length=254)
+
+    def clean_username(self):
+        data = self.cleaned_data['username']
+        if User.objects.filter(username__iexact=data).exists():
+            raise forms.ValidationError("Ya existe un usuario con ese nombre de usuario.")
+
+        return data
 
     def clean_email(self, *args, **kwargs):
         data = self.cleaned_data['email']
@@ -71,14 +87,30 @@ class RegisterForm(forms.Form):
 
     def clean_username(self):
         data = self.cleaned_data['username']
-        if User.objects.filter(username=data).exists():
+        if User.objects.filter(username__iexact=data).exists():
             raise forms.ValidationError("Ya existe un usuario con ese nombre de usuario.")
 
         return data
 
     def clean_email(self):
         data = self.cleaned_data['email']
-        if User.objects.filter(email=data).exists():
+        if User.objects.filter(email__iexact=data).exists():
             raise forms.ValidationError("Ya existe un usuario con ese correo electronico.")
 
         return data
+
+
+class CambiarClaveForm(forms.Form):
+    old = forms.CharField()
+    new1 = forms.CharField()
+    new2 = forms.CharField()
+
+    def clean(self):
+        new1 = self.cleaned_data.get('new1')
+        new2 = self.cleaned_data.get('new2')
+        
+        if new1 and new2:
+            if new1 != new2:
+                raise forms.ValidationError(u'Las contraseñas no son iguales.')
+
+        return self.cleaned_data

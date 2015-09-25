@@ -146,6 +146,35 @@ def send_push_evento(evento, users):
     })
 
 
+def send_push_noticia(noticia, users):
+    send_push({
+        'user_ids': get_user_ids(users),
+        'production': False,
+        'notification': {
+            'title': 'Nueva noticia',
+            'alert': 'Se ha publicado una nueva noticia!',
+            'android': {
+                'payload': {
+                    'type': 2,
+                    'noticia': {
+                        'id': noticia.id,
+                        'titulo': noticia.titulo
+                    }
+                }
+            },
+            'ios': {
+                'payload': {
+                    'type': 2,
+                    'noticia': {
+                        'id': noticia.id,
+                        'titulo': noticia.titulo
+                    }
+                }
+            }
+        }
+    })
+
+
 def send_push_logro(logro, users):
     send_push({
         'user_ids': get_user_ids(users),
@@ -183,7 +212,13 @@ def enviar_correo(to, subject, message):
         print(ex)
 
 
+def enviar_correo_bienvenida(request, verificacion, password):
+    url_verificacion = request.build_absolute_uri('/usuarios/verificar/%s' % verificacion.codigo)
+    mensaje = """Gracias por registrarte a MeApunto!\n\nTus datos de usuario son:\n\tusername: %s\n\tpassword: %s\n\nPara poder iniciar sesion, primero debes verificar tu cuenta de correo electronico haciendo click en el siguiente enlace:\n%s\n\nAl iniciar sesion, asegurate de cambiar tu contrasena!""" % (verificacion.usuario.username, password, url_verificacion)
+    enviar_correo(verificacion.usuario.email, 'Verificacion De Correo', mensaje)
+
+
 def enviar_correo_verificacion(request, verificacion):
     url_verificacion = request.build_absolute_uri('/usuarios/verificar/%s' % verificacion.codigo)
-    mensaje = """Gracias por registrarte a MeApunto!\n\nPara poder iniciar sesion, primero debes verificar tu cuenta de correo electronico haciendo click en el siguiente enlace:\n%s""" % url_verificacion
+    mensaje = """Gracias por registrarte a MeApunto!\n\nHaz click en el siguiente enlace para verificar tu cuenta de correo electronico:\n%s""" % url_verificacion
     enviar_correo(verificacion.usuario.email, 'Verificacion De Correo', mensaje)

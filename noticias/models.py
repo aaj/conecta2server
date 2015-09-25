@@ -1,8 +1,9 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.auth.models import User
 
-from conecta2.utils import image_to_dataURI
+from conecta2.utils import image_to_dataURI, send_push_noticia
 
 from easy_thumbnails.fields import ThumbnailerImageField
 
@@ -10,7 +11,7 @@ from easy_thumbnails.fields import ThumbnailerImageField
 
 class Noticia(models.Model):
     titulo = models.CharField(max_length=100)
-    descripcion = models.CharField(max_length=200, blank=True)
+    descripcion = models.TextField(max_length=200, blank=True)
     imagen = ThumbnailerImageField(upload_to='imagenes/noticias')
     publicada = models.DateTimeField(auto_now_add=True)
     creador = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -25,11 +26,6 @@ class Noticia(models.Model):
             return 'Me Apunto'
 
     def as_dict(self, preview=False, viewer=None):
-        print('noticia as dict')
-        print('preview =')
-        print(preview)
-        print(viewer)
-
         res = {
             'id': self.id,
             'titulo': self.titulo,
@@ -50,6 +46,12 @@ class Noticia(models.Model):
         res['me_llega'] = self.votos.filter(usuario=viewer).exists()
 
         return res
+
+    def save(self, *args, **kwargs):
+        if self.id is None:
+            send_push_noticia(self, User.objects.all())
+
+        super(Noticia, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return '%s' % self.titulo
