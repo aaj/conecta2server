@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.auth.models import User
 
-from conecta2.utils import image_to_dataURI, send_push_noticia
+from conecta2.utils import image_to_dataURI, send_push_noticia, slugify_path
 
 from easy_thumbnails.fields import ThumbnailerImageField
 
@@ -13,8 +13,8 @@ from easy_thumbnails.fields import ThumbnailerImageField
 
 class Noticia(models.Model):
     titulo = models.CharField(max_length=100)
-    descripcion = models.TextField(max_length=200, blank=True)
-    imagen = ThumbnailerImageField(upload_to='imagenes/noticias')
+    descripcion = models.TextField(blank=True)
+    imagen = ThumbnailerImageField(upload_to=slugify_path('imagenes/noticias'))
     publicada = models.DateTimeField(auto_now_add=True)
     creador = models.ForeignKey(settings.AUTH_USER_MODEL)
     

@@ -4,7 +4,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 
-from conecta2.utils import image_to_dataURI
+from conecta2.utils import image_to_dataURI, slugify_path
 
 from easy_thumbnails.fields import ThumbnailerImageField
 # Create your models here.
@@ -12,7 +12,7 @@ from easy_thumbnails.fields import ThumbnailerImageField
 class Institucion(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
-    logo = ThumbnailerImageField(upload_to='imagenes/logos')
+    logo = ThumbnailerImageField(upload_to=slugify_path('imagenes/logos'))
     telefono_contacto = models.CharField(max_length=12, blank=True)
     direccion_contacto = models.CharField(max_length=100, blank=True)
     correo_contacto = models.EmailField(blank=True)

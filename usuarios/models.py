@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 
-from conecta2.utils import image_to_dataURI
+from conecta2.utils import image_to_dataURI, slugify_path
 from easy_thumbnails.fields import ThumbnailerImageField
 from votos.models import Voto
 
@@ -31,7 +31,7 @@ class Perfil(models.Model):
     fecha_nacimiento = models.DateField(blank=True, null=True)
     telefono = models.CharField(max_length=20, blank=True)
     bio = models.CharField(max_length=1000, blank=True)
-    imagen = ThumbnailerImageField(upload_to='imagenes/perfiles', blank=True)
+    imagen = ThumbnailerImageField(upload_to=slugify_path('imagenes/perfiles'), blank=True)
 
     email_verificado = models.BooleanField(default=False)
     

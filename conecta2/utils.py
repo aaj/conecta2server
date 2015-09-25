@@ -1,3 +1,4 @@
+import os
 import json
 import imghdr
 import mimetypes
@@ -9,6 +10,16 @@ from django.core.mail import send_mail
 from django.db.models.query import QuerySet
 from django.apps import apps
 from django.conf import settings
+from django.utils.text import slugify
+
+def slugify_path(path):
+    def upload_to(instance, filename):
+        name, ext = os.path.splitext(filename)
+        name = slugify(name)
+        filename = '%s%s' % (name, ext)
+
+        return os.path.join(path, filename)
+    return upload_to
 
 def image_to_dataURI(imageField):
     try:
