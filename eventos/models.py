@@ -85,7 +85,7 @@ class Evento(models.Model):
         if preview:
             res['participantes'] = self.participantes_count()
         else:
-            res['participantes'] = list(self.participantes.all().values_list('id', flat=True))
+            res['participantes'] = list(self.participantes.all().values_list('username', flat=True))
             res['descripcion'] = self.descripcion
 
         res['me_llega'] = self.votos.filter(usuario=viewer).exists()
