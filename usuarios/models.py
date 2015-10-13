@@ -140,7 +140,9 @@ class Perfil(models.Model):
 
             if not self.usuario.privacidad.bio_publico:
                 res.pop('bio', None)
-        
+        else:
+            res.update({'completacion': self.porcentaje()})
+
         res['me_llega'] = self.votos.filter(usuario=viewer).exists()
 
         return res
