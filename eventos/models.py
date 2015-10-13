@@ -114,7 +114,7 @@ class Evento(models.Model):
         super(Evento, self).save(*args, **kwargs)
 
         if nuevo:
-            send_push_evento(self, User.objects.all())
+            send_push_evento(self, User.objects.filter(privacidad__recibir_notificaciones=True).all())
 
     def __unicode__(self):
         return u'%s - %s' % (self.nombre, self.institucion.nombre)
@@ -158,7 +158,7 @@ class Logro(models.Model):
         # funcione aya.
         usuarios = list()
 
-        for usuario in self.evento.participantes.filter(participacion__verificada=True).all():
+        for usuario in self.evento.participantes.filter(participacion__verificada=True, privacidad__recibir_notificaciones=True).all():
             if not usuario.logros.filter(id=self.id).exists():
                 usuario.logros.add(self)
                 usuarios.append(usuario)
@@ -183,7 +183,7 @@ class Participacion(models.Model):
 
         try:
             if self.verificada:
-                if not self.usuario.logros.filter(id=self.evento.logro.id).exists():
+                if not self.usuario.logros.filter(id=self.evento.logro.id).exists() and self.usuario.privacidad.recibir_notificaciones:
                     self.usuario.logros.add(self.evento.logro)
                     send_push_logro(self.evento.logro, self.usuario)
 

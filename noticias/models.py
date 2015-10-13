@@ -55,7 +55,7 @@ class Noticia(models.Model):
         super(Noticia, self).save(*args, **kwargs)
         
         if nuevo:
-            send_push_noticia(self, User.objects.all())
+            send_push_noticia(self, User.objects.filter(privacidad__recibir_notificaciones=True).all())
 
     def __unicode__(self):
         return u'%s' % self.titulo

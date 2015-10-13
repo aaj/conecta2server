@@ -12,7 +12,7 @@ class LogroInline(admin.TabularInline):
 
         usuarios = lists()
 
-        for usuario in form.instance.evento.participantes.filter(participacion__verificada=True).all():
+        for usuario in form.instance.evento.participantes.filter(participacion__verificada=True, privacidad__recibir_notificaciones=True).all():
             if not usuario.logros.filter(id=form.instance.id).exists():
                 form.instance.usuarios.add(usuario)
                 usuarios.append(usuario)

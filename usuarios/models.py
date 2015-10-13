@@ -95,6 +95,7 @@ class Perfil(models.Model):
             'id': self.usuario.id,
             'username': self.usuario.username,
             'full_name': self.usuario.get_full_name(),
+            'nivel_data': self.nivel_data(),
             'votos': {
                 'recibidos': self.votos.count(),
                 'dados': Voto.objects.filter(usuario=self.usuario, content_type__model='perfil').count()
@@ -116,8 +117,7 @@ class Perfil(models.Model):
                 'fecha_nacimiento': self.fecha_nacimiento,
                 'telefono': self.telefono,
                 'bio': self.bio,
-                'privacidad': self.usuario.privacidad.as_dict(),
-                'nivel_data': self.nivel_data()
+                'privacidad': self.usuario.privacidad.as_dict()
             })
 
             if self.imagen:
