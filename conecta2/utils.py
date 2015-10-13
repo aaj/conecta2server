@@ -232,11 +232,11 @@ def enviar_correo(to, subject, message):
 
 def enviar_correo_bienvenida(request, verificacion, password):
     url_verificacion = request.build_absolute_uri('/usuarios/verificar/%s' % verificacion.codigo)
-    mensaje = """Gracias por registrarte a MeApunto!\n\nTus datos de usuario son:\n\tusername: %s\n\tpassword: %s\n\nPara poder iniciar sesión, primero debes verificar tu cuenta de correo electrónico haciendo click en el siguiente enlace:\n%s\n\nAl iniciar sesión, asegúrate de cambiar tu contraseña!""" % (verificacion.usuario.username, password, url_verificacion)
+    mensaje = u"""Gracias por registrarte a MeApunto!\n\nTus datos de usuario son:\n\tusername: %s\n\tpassword: %s\n\nPara poder iniciar sesión, primero debes verificar tu cuenta de correo electrónico haciendo click en el siguiente enlace:\n%s\n\nAl iniciar sesión, asegúrate de cambiar tu contraseña!""" % (verificacion.usuario.username, password, url_verificacion)
     enviar_correo(verificacion.usuario.email, u'Verificación De Correo', mensaje)
 
 
 def enviar_correo_verificacion(request, verificacion):
     url_verificacion = request.build_absolute_uri('/usuarios/verificar/%s' % verificacion.codigo)
-    mensaje = """Gracias por registrarte a MeApunto!\n\nHaz click en el siguiente enlace para verificar tu cuenta de correo electrónico:\n%s""" % url_verificacion
-    enviar_correo(verificacion.usuario.email, 'Verificación De Correo', mensaje)
+    mensaje = u"""Gracias por registrarte a MeApunto!\n\nHaz click en el siguiente enlace para verificar tu cuenta de correo electrónico:\n%s""" % url_verificacion
+    enviar_correo(verificacion.usuario.email, u'Verificación De Correo', mensaje)
