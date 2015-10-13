@@ -101,7 +101,7 @@ def auth(request, *args, **kwargs):
                     'perfil': user.perfil.as_dict(preview=False, viewer=user)
                 })   
             else:
-                return JsonResponseUnauthorized({'message': 'Tienes que verificar tu correo electronico antes de ingresar.'})
+                return JsonResponseUnauthorized({'message': u'Tienes que verificar tu correo electrónico antes de ingresar.'})
         else:
             return JsonResponseUnauthorized({'message': 'Su cuenta ha sido desactivada.'})
     else:
