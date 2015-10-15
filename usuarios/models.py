@@ -146,7 +146,7 @@ class Perfil(models.Model):
         res['me_llega'] = self.votos.filter(usuario=viewer).exists()
 
         if self.usuario.is_superuser:
-            res['username'] = u'%s ✪' % res['username']
+            res['full_name'] = u'%s ✪' % res['full_name']
 
         return res
 
