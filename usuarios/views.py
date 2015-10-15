@@ -2,6 +2,7 @@
 
 import json
 
+from django.db.models import Count
 from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -255,7 +256,7 @@ def voluntarios(request, *args, **kwargs):
     if f.is_valid():
         limit = f.cleaned_data['limit']
         offset = f.cleaned_data['offset']
-        voluntarios = User.objects.filter(groups__name='UF').exclude(groups__name__in=['SA', 'INST']).all()[offset:limit + offset]
+        voluntarios = User.objects.filter(groups__name='UF').exclude(groups__name__in=['SA', 'INST']).annotate(votos=Count('perfil__votos')).order_by('-votos', 'first_name', 'last_name').all()[offset:limit + offset]
         return MyJsonResponse([v.perfil.as_dict(preview=True, viewer=request.user) for v in voluntarios], safe=False)
     else:
         return JsonResponseBadRequest(f.errors)
