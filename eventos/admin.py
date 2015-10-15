@@ -1,7 +1,10 @@
 from django.contrib import admin
 
 from conecta2.utils import send_push_logro
+
 from .models import *
+
+from instituciones.models import Institucion
 
 class LogroInline(admin.TabularInline):
     model = Logro
@@ -58,8 +61,18 @@ class EventoAdmin(admin.ModelAdmin):
         elif request.user.groups.filter(name='INST').exists() and hasattr(request.user, 'afiliacion'):
             return Evento.objects.filter(institucion=request.user.afiliacion.institucion)
         else:
-            return []
+            return Evento.objects.none()
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if request.user.is_superuser or request.user.groups.filter(name='SA').exists():
+            kwargs['queryset'] = Institucion.objects.all()
+        elif request.user.groups.filter(name='INST').exists() and hasattr(request.user, 'afiliacion'):
+            kwargs['queryset'] = Institucion.objects.filter(id=request.user.afiliacion.institucion.id)
+            kwargs['empty_label'] = None
+        else:
+            kwargs['queryset'] = Car.objects.filter(owner=request.user)
+        
+        return super(EventoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 admin.site.register(Evento, EventoAdmin)
 admin.site.register(Participacion)

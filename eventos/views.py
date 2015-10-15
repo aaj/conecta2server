@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.http import *
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
@@ -107,6 +109,9 @@ def verificar(request, codigo, *args, **kwargs):
 
     if timezone.now() > evento.fin:
         return JsonResponseForbidden({'message': 'Este evento ya finalizo.'})
+
+    if timezone.now() < (evento.inicio - timedelta(hours=6)):
+        return JsonResponseForbidden({'message': 'Este evento no ha comenzado.'})
 
     participacion = Participacion.objects.filter(evento=evento, usuario=request.user).first()
 
