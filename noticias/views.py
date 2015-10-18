@@ -37,6 +37,9 @@ def noticia(request, id_noticia, *args, **kwargs):
     if noticia is None:
         return JsonResponseNotFound({'message': 'Noticia no existe!'})
 
+    noticia.vistas += 1
+    noticia.save()
+
     return MyJsonResponse(noticia.as_dict(preview=False, viewer=request.user))
 
 
