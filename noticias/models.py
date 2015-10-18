@@ -34,6 +34,7 @@ class Noticia(models.Model):
             'imagen': image_to_dataURI(self.imagen['medium']),
             'publicada': self.publicada.isoformat(),
             'institucion': self.institucion(),
+            'vistas': self.vistas
         }
 
         if not preview:
@@ -41,8 +42,7 @@ class Noticia(models.Model):
                 'institucion': self.creador.afiliacion.institucion.as_dict(preview=True, viewer=viewer) if hasattr(self.creador, 'afiliacion') else 'Me Apunto',
                 'descripcion': self.descripcion,
                 'imagen': image_to_dataURI(self.imagen['large']),
-                'votos': self.votos.count(),
-                'vistas': self.vistas
+                'votos': self.votos.count()
             })
             
         res['me_llega'] = self.votos.filter(usuario=viewer).exists()

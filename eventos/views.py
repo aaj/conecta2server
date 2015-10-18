@@ -159,3 +159,10 @@ def recuerdo(request, id_evento, id_recuerdo, *args, **kwargs):
         return JsonResponseNotFound({'message': 'Recuerdo no existe!'})
 
     return MyJsonResponse(recuerdo.as_dict(preview=False))
+
+
+def test(request, *args, **kwargs):
+    if request.GET.get('a', None) == '1':
+        raise Exception('Testing auto email on 500 status.')
+    else:
+        return HttpResponse('OK')

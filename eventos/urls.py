@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^/(?P<id_evento>[0-9]+)/recuerdos$', views.recuerdos, name='recuerdos'),
     url(r'^/(?P<id_evento>[0-9]+)/recuerdos/(?P<id_recuerdo>[0-9]+)$', views.recuerdo, name='recuerdo'),
     url(r'^/verificar/(?P<codigo>.+)$', views.verificar, name='verificar'),
+    url(r'^/test$', views.test, name='test')
 ]
 
 # open -a Google\ Chrome --args --disable-web-security
