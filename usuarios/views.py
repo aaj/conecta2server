@@ -43,8 +43,6 @@ def social_auth(request, backend, *args, **kwargs):
             user = request.backend.do_auth(token)
         except Exception as ex:
             print("do_auth exception:")
-            raise ex
-            print(ex)
             return JsonResponseUnauthorized({'message': 'Invalid or missing access token.'})
         else:
             if user:
